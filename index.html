@@ -1,0 +1,5275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joanne Worklist Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --bg-2: #ebe5da;
+      --panel: #fffdf8;
+      --panel-soft: #f6f1e9;
+      --panel-muted: #eee7dc;
+      --text: #34312d;
+      --muted: #776f65;
+      --line: #ded5c8;
+
+      --sage: #7b8a70;
+      --sage-2: #9aaa8e;
+      --sage-soft: #e8ede1;
+      --dusty-blue: #8799a8;
+      --dusty-blue-dark: #617584;
+      --blue-soft: #e5ebee;
+      --clay: #c79b89;
+      --clay-dark: #a57464;
+      --clay-soft: #f1dfd7;
+      --sand: #d8c7a9;
+
+      --danger: #b25f58;
+      --danger-soft: #f4e3df;
+      --today: #b88945;
+      --today-soft: #f5e8d1;
+      --success: #7f9672;
+
+      --shadow: 0 18px 42px rgba(91, 79, 65, 0.13);
+      --shadow-soft: 0 10px 24px rgba(91, 79, 65, 0.08);
+
+      --sidebar-w: 286px;
+      --sidebar-collapsed-w: 78px;
+
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(123,138,112,0.18), transparent 27rem),
+        radial-gradient(circle at 92% 8%, rgba(135,153,168,0.14), transparent 31rem),
+        radial-gradient(circle at 86% 88%, rgba(199,155,137,0.12), transparent 25rem),
+        linear-gradient(135deg, var(--bg) 0%, #f8f3ea 48%, var(--bg-2) 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .hidden { display: none !important; }
+    a { color: inherit; }
+
+    /* Password gate */
+    .password-gate {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .password-gate::before,
+    .password-gate::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      z-index: -1;
+    }
+
+    .password-gate::before {
+      width: 560px;
+      height: 560px;
+      left: -210px;
+      top: -210px;
+      background: linear-gradient(135deg, rgba(123,138,112,0.25), rgba(135,153,168,0.10));
+    }
+
+    .password-gate::after {
+      width: 500px;
+      height: 500px;
+      right: -180px;
+      bottom: -190px;
+      background: linear-gradient(135deg, rgba(199,155,137,0.20), rgba(216,199,169,0.20));
+    }
+
+    .auth-card {
+      width: min(1040px, 100%);
+      min-height: 560px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) 420px;
+      background: rgba(255,253,248,0.76);
+      border: 1px solid rgba(222,213,200,0.88);
+      border-radius: 36px;
+      box-shadow: 0 24px 70px rgba(91,79,65,0.17);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .auth-intro {
+      position: relative;
+      padding: 42px;
+      min-height: 560px;
+      background:
+        radial-gradient(circle at 78% 15%, rgba(135,153,168,0.20), transparent 16rem),
+        linear-gradient(145deg, rgba(250,247,239,0.98), rgba(238,231,220,0.80));
+      overflow: hidden;
+    }
+
+    .auth-intro::before {
+      content: "";
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      right: -95px;
+      top: -105px;
+      border-radius: 50%;
+      background: rgba(123,138,112,0.10);
+      border: 1px solid rgba(123,138,112,0.08);
+    }
+
+    .auth-intro::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: 58px;
+      bottom: 75px;
+      border-radius: 42px;
+      rotate: 12deg;
+      background: rgba(199,155,137,0.14);
+      border: 1px solid rgba(199,155,137,0.12);
+    }
+
+    .auth-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+    }
+
+    .login-kicker,
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 13px;
+      background: rgba(232,237,225,0.86);
+      border: 1px solid rgba(123,138,112,0.25);
+      color: var(--sage);
+      font-size: 13px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .auth-intro h1 {
+      margin: 24px 0 14px;
+      font-size: clamp(40px, 5vw, 66px);
+      line-height: 1.02;
+      letter-spacing: -0.065em;
+    }
+
+    .auth-intro p {
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .auth-flow {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+      max-width: 560px;
+    }
+
+    .auth-flow-item {
+      border: 1px solid rgba(222,213,200,0.90);
+      background: rgba(255,253,248,0.66);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .auth-flow-item strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--sage);
+      margin-bottom: 8px;
+    }
+
+    .auth-flow-item span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 780;
+    }
+
+    .auth-note {
+      position: relative;
+      z-index: 1;
+      margin-top: 28px;
+      max-width: 600px;
+      padding: 15px 16px;
+      border-radius: 20px;
+      background: rgba(246,241,233,0.82);
+      border: 1px solid rgba(222,213,200,0.86);
+      color: #5a554d;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .auth-form {
+      padding: 42px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(255,253,248,0.92);
+      border-left: 1px solid rgba(222,213,200,0.72);
+    }
+
+    .auth-form h2 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      letter-spacing: -0.035em;
+    }
+
+    .auth-form p {
+      margin: 0 0 26px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .password-label {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--sage);
+    }
+
+    .password-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .password-input {
+      min-width: 0;
+      border: 1px solid #cfc6b8;
+      background: #fff8ee;
+      border-radius: 16px;
+      padding: 14px 15px;
+      font-size: 15px;
+      outline: none;
+      color: var(--text);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .password-input:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 4px rgba(123,138,112,0.16);
+    }
+
+    .password-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 0 22px;
+      background: var(--sage);
+      color: #fff;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 12px 22px rgba(123,138,112,0.22);
+      white-space: nowrap;
+    }
+
+    .password-error {
+      margin-top: 12px;
+      color: var(--danger);
+      font-weight: 850;
+      min-height: 24px;
+    }
+
+    .password-hint {
+      margin-top: 20px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: rgba(246,241,233,0.9);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    /* App layout */
+    .app { min-height: 100vh; display: flex; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-w);
+      background: linear-gradient(180deg, rgba(246,241,233,0.96), rgba(232,226,216,0.94));
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      padding: 20px 16px;
+      overflow-y: auto;
+      z-index: 10;
+      transition: width .22s ease, padding .22s ease;
+    }
+
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed-w);
+      padding: 20px 12px;
+    }
+
+    .brand {
+      padding: 12px 10px 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .brand-text { min-width: 0; }
+    .brand-title {
+      font-size: 20px;
+      font-weight: 920;
+      letter-spacing: 0.01em;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .collapse-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: var(--panel-warm);
+      color: var(--sage);
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(91,79,65,0.08);
+    }
+
+    body.sidebar-collapsed .brand {
+      grid-template-columns: 1fr;
+      padding-left: 0;
+      padding-right: 0;
+      justify-items: center;
+    }
+
+    body.sidebar-collapsed .brand-text { display: none; }
+    body.sidebar-collapsed .collapse-btn { transform: rotate(180deg); }
+
+    .nav-group-title {
+      margin: 20px 10px 8px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 850;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body.sidebar-collapsed .nav-group-title {
+      display: none;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      margin: 5px 0;
+      border-radius: 15px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 780;
+      font-size: 14px;
+      transition: all .18s ease;
+      min-height: 44px;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(154,170,142,0.18);
+      color: var(--sage);
+      box-shadow: inset 0 0 0 1px rgba(154,170,142,0.12);
+    }
+
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--sage);
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 4px rgba(154,170,142,0.13);
+    }
+
+    .nav-link:nth-child(3n) .nav-dot { background: var(--dusty-blue); box-shadow: 0 0 0 4px rgba(135,153,168,0.13); }
+    .nav-link:nth-child(4n) .nav-dot { background: var(--clay); box-shadow: 0 0 0 4px rgba(199,155,137,0.13); }
+
+    body.sidebar-collapsed .nav-link {
+      justify-content: center;
+      padding: 12px 0;
+    }
+
+    body.sidebar-collapsed .nav-label {
+      display: none;
+    }
+
+    .mobile-nav {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      padding: 12px 16px;
+      background: rgba(246,241,232,0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-nav select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+
+    main {
+      width: 100%;
+      margin-left: var(--sidebar-w);
+      padding: 28px 32px 56px;
+      transition: margin-left .22s ease;
+    }
+
+    body.sidebar-collapsed main {
+      margin-left: var(--sidebar-collapsed-w);
+    }
+
+    .container { max-width: 1320px; margin: 0 auto; }
+    section { scroll-margin-top: 28px; margin-bottom: 28px; }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(251,250,246,0.96), rgba(240,235,226,0.86));
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 270px;
+      height: 270px;
+      border-radius: 999px;
+      background: rgba(199,155,137,0.15);
+      right: -80px;
+      top: -100px;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(154,170,142,0.40);
+      background: rgba(154,170,142,0.12);
+      color: var(--sage);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 820px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .summary-card {
+      background: rgba(255,249,239,0.78);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: 950;
+      margin-top: 2px;
+      line-height: 1.1;
+    }
+
+    .summary-card.danger .summary-value { color: var(--danger); }
+    .summary-card.warning .summary-value { color: var(--today); }
+    .summary-card.blue .summary-value { color: var(--dusty-blue-dark); }
+    .summary-card.sage .summary-value { color: var(--sage); }
+
+    .section-card {
+      background: rgba(255,253,248,0.90);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 24px;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      margin: 1px;
+    }
+
+    .chip.high { background: var(--danger-soft); color: var(--danger); border-color: rgba(178,95,88,0.22); }
+    .chip.mid { background: var(--today-soft); color: var(--today); border-color: rgba(184,137,69,0.25); }
+    .chip.low { background: rgba(230,238,224,0.9); color: var(--success); border-color: rgba(127,150,114,0.22); }
+    .chip.status { background: rgba(135,153,168,0.14); color: var(--dusty-blue-dark); border-color: rgba(135,153,168,0.28); }
+    .chip.overdue { background: var(--danger-soft); color: var(--danger); border-color: rgba(178,95,88,0.28); }
+    .chip.today { background: var(--today-soft); color: var(--today); border-color: rgba(184,137,69,0.28); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fffdf8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--panel-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(154,170,142,0.07); }
+
+    tr.row-overdue {
+      background: rgba(178,95,88,0.08);
+    }
+
+    tr.row-today {
+      background: rgba(184,137,69,0.08);
+    }
+
+    .task-title { font-weight: 840; }
+    .muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+
+    .deadline-overdue {
+      color: var(--danger);
+      font-weight: 950;
+    }
+
+    .deadline-today {
+      color: var(--today);
+      font-weight: 950;
+    }
+
+    .note-cell {
+      white-space: pre-line;
+      min-width: 320px;
+      max-width: 620px;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line);
+      background: rgba(255,249,239,0.62);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 760;
+    }
+
+    .priority-list {
+      display: grid;
+      gap: 14px;
+      counter-reset: priority;
+    }
+
+    .priority-item {
+      counter-increment: priority;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .priority-item::before {
+      content: counter(priority);
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--sage);
+      color: #fff;
+      font-weight: 950;
+    }
+
+    .priority-item.is-overdue {
+      border-color: rgba(178,95,88,0.20);
+      background: rgba(244,227,223,0.22);
+    }
+
+    .priority-item.is-overdue::before { background: var(--danger); }
+
+    .priority-item.is-today {
+      border-color: rgba(184,137,69,0.20);
+      background: rgba(245,232,209,0.24);
+    }
+
+    .priority-item.is-today::before { background: var(--today); }
+
+    .priority-title { margin: 0 0 4px; font-weight: 900; }
+    .priority-reason { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .radar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .radar-card {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      min-height: 112px;
+    }
+
+    .radar-card h3 { margin: 0 0 8px; font-size: 15px; }
+    .radar-number { font-size: 32px; line-height: 1; font-weight: 950; margin-bottom: 8px; }
+    .radar-card.danger .radar-number { color: var(--danger); }
+    .radar-card.warning .radar-number { color: var(--today); }
+    .radar-card.blue .radar-number { color: var(--dusty-blue-dark); }
+    .radar-card.sage .radar-number { color: var(--sage); }
+    .radar-card.clay .radar-number { color: var(--clay-dark); }
+
+    .mini-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .task-card {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: 0 8px 18px rgba(83,74,64,0.05);
+    }
+
+    .task-card.overdue { border-color: rgba(178,95,88,0.38); background: rgba(244,227,223,0.36); }
+    .task-card.today { border-color: rgba(184,137,69,0.38); background: rgba(245,232,209,0.42); }
+
+    .task-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .task-id { color: var(--muted); font-size: 13px; font-weight: 900; margin-bottom: 2px; }
+    .task-card h3 { margin: 0; font-size: 18px; line-height: 1.35; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px 14px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .meta-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 1px;
+    }
+
+    .note-box {
+      margin-top: 12px;
+      background: rgba(240,235,226,0.72);
+      border-radius: 14px;
+      padding: 12px;
+      color: #4a4742;
+      font-size: 13px;
+      white-space: pre-line;
+    }
+
+    .missing-list { display: grid; gap: 12px; }
+
+    .missing-item {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--clay);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .missing-title { font-weight: 900; margin-bottom: 5px; }
+    .missing-fields { color: var(--muted); font-size: 14px; }
+
+    .footer-note {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 1120px) {
+      .summary-grid { grid-template-columns: repeat(3, 1fr); }
+      .radar-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-grid { grid-template-columns: 1fr; }
+      .auth-card { grid-template-columns: 1fr; }
+      .auth-intro { min-height: auto; }
+      .auth-form { border-left: 0; border-top: 1px solid rgba(222,213,200,0.72); }
+    }
+
+    @media (max-width: 820px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: block; }
+      main, body.sidebar-collapsed main {
+        margin-left: 0;
+        padding: 18px 14px 36px;
+      }
+      .hero, .section-card { padding: 20px; border-radius: 22px; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .summary-card { padding: 13px; }
+      .summary-value { font-size: 24px; }
+      .section-title-row { display: block; }
+      .radar-grid { grid-template-columns: 1fr; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .password-gate { padding: 16px; }
+      .auth-card { border-radius: 28px; min-height: 0; }
+      .auth-intro, .auth-form { padding: 24px; }
+      .auth-flow { grid-template-columns: 1fr; }
+      .password-row { grid-template-columns: 1fr; }
+      .password-btn { padding: 13px 16px; }
+    }
+
+
+    /* v4 refinements: cleaner worklist table and expandable rows */
+    .table-wrap {
+      background: #fffefb;
+      border-color: #cfc6b8;
+    }
+
+    table.worklist-table {
+      min-width: 760px;
+    }
+
+    table.worklist-table th,
+    table.worklist-table td {
+      border-bottom: 1.5px solid #d5cbbd;
+    }
+
+    table.worklist-table th {
+      background: #f3eee6;
+    }
+
+    table.worklist-table tbody tr.task-main-row {
+      background: #fffefb;
+      cursor: pointer;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover {
+      background: #f4f7f0;
+    }
+
+    table.worklist-table tbody tr.task-main-row.row-overdue {
+      background: #fffefb;
+    }
+
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #fffefb;
+    }
+
+    table.worklist-table .task-title,
+    table.worklist-table .task-no {
+      font-weight: 500;
+    }
+
+    .expand-cell {
+      padding: 0 !important;
+      background: #f7f3eb;
+      border-bottom: 1.5px solid #cfc6b8 !important;
+    }
+
+    .inline-detail {
+      margin: 0;
+      padding: 18px 20px 20px;
+      background:
+        linear-gradient(135deg, rgba(255,253,248,0.96), rgba(244,239,230,0.88));
+      border-top: 1px solid #d8cec0;
+    }
+
+    .inline-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .inline-detail-box {
+      border: 1px solid #ded5c8;
+      background: rgba(255,253,248,0.82);
+      border-radius: 14px;
+      padding: 12px 13px;
+    }
+
+    .inline-detail-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 3px;
+    }
+
+    .inline-detail-value {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .inline-detail-section {
+      border: 1px solid #ded5c8;
+      background: rgba(255,253,248,0.74);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    .inline-detail-section h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--sage);
+      letter-spacing: 0.02em;
+    }
+
+    .task-bullets {
+      margin: 0;
+      padding-left: 20px;
+      color: #4f4a43;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .task-bullets li + li {
+      margin-top: 4px;
+    }
+
+    .row-caret {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      margin-right: 6px;
+      border-radius: 8px;
+      background: #edf1e8;
+      color: var(--sage);
+      font-size: 12px;
+      transition: transform .18s ease;
+    }
+
+    tr.task-main-row.is-expanded .row-caret {
+      transform: rotate(90deg);
+    }
+
+    .status-pair {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-chip-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 2px;
+      font-weight: 750;
+    }
+
+    .priority-item.is-overdue {
+      border-color: rgba(178,95,88,0.20);
+      background: rgba(244,227,223,0.22);
+    }
+
+    .priority-item.is-today {
+      border-color: rgba(184,137,69,0.20);
+      background: rgba(245,232,209,0.24);
+    }
+
+    .priority-item.is-overdue::before {
+      background: rgba(178,95,88,0.78);
+    }
+
+    .priority-item.is-today::before {
+      background: rgba(184,137,69,0.78);
+    }
+
+    @media (max-width: 820px) {
+      table.worklist-table {
+        min-width: 680px;
+      }
+
+      .inline-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* v5 refinements */
+    .sidebar {
+      background:
+        linear-gradient(180deg, rgba(231,225,214,0.98), rgba(218,211,198,0.96));
+      border-right: 1.5px solid #bfb4a5;
+      box-shadow: 12px 0 34px rgba(80,70,58,0.10);
+    }
+
+    .nav-block {
+      margin: 14px 0;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255,253,248,0.45);
+      border: 1px solid rgba(191,180,165,0.58);
+    }
+
+    .nav-block .nav-group-title {
+      margin: 4px 8px 8px;
+    }
+
+    body.sidebar-collapsed .nav-block {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+
+    table.worklist-table {
+      min-width: 820px;
+    }
+
+    table.worklist-table th {
+      text-align: center;
+    }
+
+    table.worklist-table th,
+    table.worklist-table td {
+      border-bottom: 1.6px solid #cfc3b3;
+    }
+
+    table.worklist-table tbody tr.task-main-row {
+      background: #fbf7ef;
+    }
+
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1) {
+      background: #f8f3ea;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover {
+      background: #eef2e9;
+    }
+
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #fbf7ef;
+    }
+
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover,
+    table.worklist-table tbody tr.task-main-row.row-today:hover {
+      background: #eef2e9;
+    }
+
+    .schedule-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 76px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 850;
+      border: 1px solid transparent;
+    }
+
+    .schedule-chip.normal {
+      background: #e9eee3;
+      color: #6f7f66;
+      border-color: rgba(111,127,102,0.22);
+    }
+
+    .schedule-chip.today {
+      background: #f5e8d1;
+      color: #b88945;
+      border-color: rgba(184,137,69,0.24);
+    }
+
+    .schedule-chip.overdue {
+      background: #f2dfda;
+      color: #b25f58;
+      border-color: rgba(178,95,88,0.24);
+    }
+
+    .worklist-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .soft-action-btn {
+      border: 1px solid #cfc3b3;
+      background: #fffdf8;
+      color: var(--sage);
+      border-radius: 14px;
+      padding: 9px 13px;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(91,79,65,0.06);
+    }
+
+    .soft-action-btn:hover {
+      background: #eef2e9;
+    }
+
+    .inline-detail-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .inline-detail-two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .inline-detail-section {
+      min-height: 100%;
+    }
+
+    .empty-mark {
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 820px) {
+      table.worklist-table {
+        min-width: 760px;
+      }
+
+      .inline-detail-grid,
+      .inline-detail-two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .worklist-toolbar {
+        justify-content: flex-start;
+        margin-top: 12px;
+      }
+    }
+
+
+
+    /* v6 page-mode and overview radar */
+    .page-section {
+      display: none;
+    }
+
+    .page-section.active-page {
+      display: block;
+    }
+
+    .hero.page-section.active-page {
+      display: block;
+    }
+
+    .overview-radar-grid {
+      margin-top: 22px;
+    }
+
+    .hero h1 {
+      margin-bottom: 0;
+    }
+
+    .section-card.page-section {
+      min-height: calc(100vh - 84px);
+    }
+
+    .completed-detail-row .inline-detail {
+      background:
+        linear-gradient(135deg, rgba(255,253,248,0.96), rgba(244,239,230,0.88));
+    }
+
+    table.completed-table {
+      min-width: 760px;
+    }
+
+    table.delegated-table {
+      min-width: 860px;
+    }
+
+    .date-muted {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .inline-detail-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (max-width: 820px) {
+      .section-card.page-section {
+        min-height: auto;
+      }
+
+      .inline-detail-grid.three {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* v7 overview navigation and sticky worklist header */
+    .radar-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .radar-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(222,213,200,0.78);
+    }
+
+    .radar-action {
+      border: 1px solid rgba(191,180,165,0.72);
+      background: rgba(255,253,248,0.72);
+      color: #6f7f66;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      min-width: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .radar-action:hover {
+      background: #eef2e9;
+      border-color: rgba(111,127,102,0.35);
+    }
+
+    .radar-action:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .radar-action .action-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      background: #e9eee3;
+      color: #6f7f66;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    .radar-action.delegated .action-dot {
+      background: #e5ebee;
+      color: #617584;
+    }
+
+    .section-card.page-section {
+      height: calc(100vh - 56px);
+      min-height: 620px;
+      display: none;
+      overflow: hidden;
+    }
+
+    .section-card.page-section.active-page {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero.page-section {
+      height: calc(100vh - 56px);
+      min-height: 620px;
+      overflow: auto;
+    }
+
+    .section-title-row {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: rgba(255,253,248,0.96);
+      backdrop-filter: blur(12px);
+      margin: -24px -24px 18px;
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid rgba(222,213,200,0.88);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .table-scroll-area {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      border-radius: var(--radius-md);
+    }
+
+    .table-scroll-area .table-wrap {
+      overflow: visible;
+    }
+
+    .table-scroll-area thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      box-shadow: 0 1px 0 #cfc3b3;
+    }
+
+    .worklist-toolbar {
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .soft-action-btn[disabled] {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: #eee7dc;
+    }
+
+    .soft-action-btn.collapse {
+      display: none;
+      color: #617584;
+    }
+
+    .soft-action-btn.collapse.visible {
+      display: inline-flex;
+    }
+
+    tr.task-main-row.focused-from-overview {
+      outline: 2px solid rgba(123,138,112,0.46);
+      outline-offset: -2px;
+      background: #eef2e9 !important;
+    }
+
+    @media (max-width: 820px) {
+      .section-card.page-section,
+      .hero.page-section {
+        height: auto;
+        min-height: auto;
+        overflow: visible;
+      }
+
+      .section-title-row {
+        position: sticky;
+        top: 58px;
+        margin: -20px -20px 16px;
+        padding: 20px 20px 14px;
+      }
+
+      .table-scroll-area {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+    }
+
+
+
+    /* v8 refinements: true frozen worklist header, lighter rows, column alignment, sidebar/content contrast */
+    body {
+      background:
+        radial-gradient(circle at 8% 8%, rgba(123,138,112,0.14), transparent 27rem),
+        radial-gradient(circle at 92% 8%, rgba(135,153,168,0.12), transparent 31rem),
+        radial-gradient(circle at 86% 88%, rgba(199,155,137,0.10), transparent 25rem),
+        linear-gradient(135deg, #ebe5da 0%, #f2ece2 48%, #e7e0d4 100%) !important;
+    }
+
+    .sidebar {
+      background:
+        linear-gradient(180deg, rgba(255,253,248,0.98), rgba(247,242,234,0.96)) !important;
+      border-right: 1.8px solid #b8ad9e !important;
+      box-shadow: 12px 0 34px rgba(80,70,58,0.11) !important;
+    }
+
+    .nav-block {
+      background: rgba(239,233,223,0.58) !important;
+      border-color: rgba(184,173,158,0.64) !important;
+    }
+
+    main {
+      height: 100vh;
+      overflow: hidden;
+      background: rgba(231,224,212,0.32);
+    }
+
+    .container {
+      height: calc(100vh - 56px);
+      min-height: 0;
+    }
+
+    .section-card.page-section {
+      height: calc(100vh - 56px) !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .section-card.page-section.active-page {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .hero.page-section.active-page {
+      display: block !important;
+      height: calc(100vh - 56px) !important;
+      overflow: auto !important;
+    }
+
+    .section-title-row {
+      position: relative !important;
+      top: auto !important;
+      flex: 0 0 auto;
+      z-index: 5;
+      background: rgba(255,253,248,0.96) !important;
+      margin: -24px -24px 18px !important;
+      padding: 24px 24px 16px !important;
+      border-bottom: 1px solid rgba(207,195,179,0.92) !important;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .table-scroll-area {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow: auto !important;
+      border-radius: var(--radius-md);
+    }
+
+    .table-scroll-area .table-wrap {
+      overflow: visible !important;
+      min-height: 100%;
+      background: rgba(255,253,248,0.72) !important;
+    }
+
+    .table-scroll-area thead th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 4 !important;
+      box-shadow: 0 1.5px 0 #cfc3b3;
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: transparent !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover,
+    table.worklist-table tbody tr.task-main-row.row-today:hover {
+      background: rgba(232,237,225,0.42) !important;
+    }
+
+    table.worklist-table th {
+      text-align: center !important;
+    }
+
+    table.worklist-table td:nth-child(1),
+    table.worklist-table td:nth-child(3),
+    table.worklist-table td:nth-child(4),
+    table.worklist-table td:nth-child(5) {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    table.worklist-table td:nth-child(2) {
+      vertical-align: middle;
+    }
+
+    table.worklist-table .task-title,
+    table.worklist-table .task-no {
+      font-weight: 500 !important;
+    }
+
+    table.worklist-table th,
+    table.worklist-table td {
+      border-bottom: 1.6px solid #cbbfaf !important;
+    }
+
+    .expand-cell {
+      background: rgba(242,236,226,0.72) !important;
+    }
+
+    .inline-detail {
+      background:
+        linear-gradient(135deg, rgba(255,253,248,0.98), rgba(246,241,233,0.90)) !important;
+      border-top: 1px solid #cfc3b3;
+    }
+
+    @media (max-width: 820px) {
+      main {
+        height: auto;
+        overflow: visible;
+      }
+
+      .container {
+        height: auto;
+      }
+
+      .section-card.page-section,
+      .hero.page-section.active-page {
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      .section-title-row {
+        position: sticky !important;
+        top: 58px !important;
+      }
+
+      .table-scroll-area {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+      }
+    }
+
+
+
+    /* v9 fix: force true inner scrolling for worklist tables */
+    html,
+    body {
+      height: 100%;
+      overflow: hidden !important;
+    }
+
+    #app.app {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    main {
+      height: 100vh !important;
+      overflow: hidden !important;
+    }
+
+    .container {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .page-section {
+      max-height: calc(100vh - 56px);
+      overflow: hidden !important;
+    }
+
+    .section-card.page-section.active-page {
+      display: flex !important;
+      flex-direction: column !important;
+      height: calc(100vh - 56px) !important;
+      max-height: calc(100vh - 56px) !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .hero.page-section.active-page {
+      display: block !important;
+      height: calc(100vh - 56px) !important;
+      max-height: calc(100vh - 56px) !important;
+      overflow: auto !important;
+    }
+
+    .section-title-row {
+      flex: 0 0 auto !important;
+      position: relative !important;
+      top: auto !important;
+      z-index: 10 !important;
+    }
+
+    #myTasksTable,
+    #delegatedTable,
+    #completedTable {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+
+    #myTasksTable .table-scroll-area,
+    #delegatedTable .table-scroll-area,
+    #completedTable .table-scroll-area {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow-y: auto !important;
+      overflow-x: auto !important;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      border-radius: var(--radius-md);
+    }
+
+    #myTasksTable .table-wrap,
+    #delegatedTable .table-wrap,
+    #completedTable .table-wrap {
+      overflow: visible !important;
+      min-height: max-content;
+      width: 100%;
+    }
+
+    #myTasksTable thead th,
+    #delegatedTable thead th,
+    #completedTable thead th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 20 !important;
+      background: #f3eee6 !important;
+    }
+
+    @media (max-width: 820px) {
+      html,
+      body {
+        height: auto;
+        overflow: auto !important;
+      }
+
+      #app.app,
+      main,
+      .container,
+      .section-card.page-section.active-page,
+      .hero.page-section.active-page {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      #myTasksTable,
+      #delegatedTable,
+      #completedTable {
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      #myTasksTable .table-scroll-area,
+      #delegatedTable .table-scroll-area,
+      #completedTable .table-scroll-area {
+        height: auto !important;
+        max-height: none !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+      }
+    }
+
+
+
+    /* v10 visual rollback: previous warmer colors + clearer expanded task grouping */
+    body {
+      background:
+        radial-gradient(circle at 8% 8%, rgba(123,138,112,0.16), transparent 27rem),
+        radial-gradient(circle at 92% 8%, rgba(135,153,168,0.13), transparent 31rem),
+        radial-gradient(circle at 86% 88%, rgba(199,155,137,0.11), transparent 25rem),
+        linear-gradient(135deg, #f4efe6 0%, #f8f3ea 48%, #ebe5da 100%) !important;
+    }
+
+    main {
+      background: transparent !important;
+    }
+
+    .sidebar {
+      background:
+        linear-gradient(180deg, rgba(231,225,214,0.98), rgba(218,211,198,0.96)) !important;
+      border-right: 1.5px solid #bfb4a5 !important;
+      box-shadow: 12px 0 34px rgba(80,70,58,0.10) !important;
+    }
+
+    .nav-block {
+      background: rgba(255,253,248,0.45) !important;
+      border: 1px solid rgba(191,180,165,0.58) !important;
+    }
+
+    .section-card.page-section {
+      background: rgba(255,253,248,0.92) !important;
+    }
+
+    .section-title-row {
+      background: rgba(255,253,248,0.96) !important;
+    }
+
+    #myTasksTable .table-wrap,
+    #delegatedTable .table-wrap,
+    #completedTable .table-wrap {
+      background: rgba(255,253,248,0.88) !important;
+    }
+
+    table.worklist-table {
+      border-collapse: separate !important;
+      border-spacing: 0 8px !important;
+      background: transparent !important;
+    }
+
+    table.worklist-table thead th {
+      background: #f0ebe2 !important;
+      border-top: 1px solid #d2c7b7 !important;
+      border-bottom: 1.5px solid #c5b8a7 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #f8f3ea !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover,
+    table.worklist-table tbody tr.task-main-row.row-today:hover {
+      background: #eef2e9 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td {
+      border-top: 1px solid #d4c8b8 !important;
+      border-bottom: 1px solid #d4c8b8 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td:first-child {
+      border-left: 1px solid #d4c8b8 !important;
+      border-radius: 16px 0 0 16px;
+    }
+
+    table.worklist-table tbody tr.task-main-row td:last-child {
+      border-right: 1px solid #d4c8b8 !important;
+      border-radius: 0 16px 16px 0;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded {
+      background: #f4efe6 !important;
+      box-shadow: inset 5px 0 0 rgba(123,138,112,0.55);
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td:first-child {
+      border-radius: 16px 0 0 0;
+      border-left: 1px solid #c5b8a7 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td:last-child {
+      border-radius: 0 16px 0 0;
+      border-right: 1px solid #c5b8a7 !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #f4efe6 !important;
+      border-left: 1px solid #c5b8a7 !important;
+      border-right: 1px solid #c5b8a7 !important;
+      border-bottom: 2px solid #b9ad9d !important;
+      border-radius: 0 0 16px 16px;
+      box-shadow: inset 5px 0 0 rgba(123,138,112,0.55);
+      padding: 0 !important;
+    }
+
+    .inline-detail {
+      margin: 0 !important;
+      background:
+        linear-gradient(135deg, rgba(255,253,248,0.96), rgba(246,241,233,0.90)) !important;
+      border-top: 1px solid #d3c8b8 !important;
+      padding: 18px 20px 20px !important;
+    }
+
+    .inline-detail-box,
+    .inline-detail-section {
+      background: rgba(255,253,248,0.76) !important;
+      border-color: #d7ccbd !important;
+    }
+
+    .row-caret {
+      background: #e8ede1 !important;
+      color: #6f7f66 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded .row-caret {
+      background: #dfe8d7 !important;
+    }
+
+
+
+    /* v11 fixed: sidebar font + centered inline details */
+    .sidebar .brand-title {
+      font-size: 22px !important;
+    }
+
+    .sidebar .brand-subtitle {
+      font-size: 14px !important;
+    }
+
+    .sidebar .nav-group-title {
+      font-size: 14px !important;
+    }
+
+    .sidebar .nav-link {
+      font-size: 16px !important;
+    }
+
+    .inline-detail-box {
+      text-align: center !important;
+    }
+
+    .inline-detail-label,
+    .inline-detail-value {
+      text-align: center !important;
+    }
+
+    .inline-detail-section h4 {
+      text-align: center !important;
+    }
+
+    .task-bullets {
+      text-align: center !important;
+      list-style-position: inside !important;
+      padding-left: 0 !important;
+    }
+
+    .task-bullets li {
+      text-align: center !important;
+    }
+
+    .empty-mark {
+      text-align: center !important;
+      display: block;
+    }
+
+    .inline-detail-three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .inline-detail-three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* v12: clean table rows instead of stacked cards */
+    table.worklist-table {
+      border-collapse: collapse !important;
+      border-spacing: 0 !important;
+      background: #fffdf8 !important;
+      border: 1px solid #cfc3b3 !important;
+      border-radius: 0 !important;
+    }
+
+    table.worklist-table thead th {
+      background: #eee8df !important;
+      border-top: none !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-radius: 0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #fffdf8 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover,
+    table.worklist-table tbody tr.task-main-row.row-today:hover {
+      background: #f4f7f0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td {
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-bottom: 1.5px solid #cfc3b3 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td:first-child,
+    table.worklist-table tbody tr.task-main-row td:last-child {
+      border-left: none !important;
+      border-right: none !important;
+      border-radius: 0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded {
+      background: #f8f3ea !important;
+      box-shadow: inset 4px 0 0 rgba(123,138,112,0.58) !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      border-bottom: 1px solid #bfb2a2 !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #f8f3ea !important;
+      border-left: 4px solid rgba(123,138,112,0.58) !important;
+      border-right: none !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .inline-detail {
+      margin: 0 !important;
+      padding: 18px 20px 20px !important;
+      background: #f8f3ea !important;
+      border-top: none !important;
+    }
+
+    .inline-detail-box,
+    .inline-detail-section {
+      background: rgba(255,253,248,0.72) !important;
+      border-color: #d8cec0 !important;
+      border-radius: 14px !important;
+    }
+
+    .table-wrap {
+      background: #fffdf8 !important;
+      border-color: #cfc3b3 !important;
+      border-radius: 16px !important;
+      overflow: hidden !important;
+    }
+
+    .row-caret {
+      border-radius: 8px !important;
+    }
+
+
+
+    /* v13: remove vertical cut line; use horizontal grouping separators */
+    table.worklist-table tbody tr.task-main-row.is-expanded {
+      background: #f8f3ea !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      border-bottom: 0 !important;
+      background: #f8f3ea !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #f8f3ea !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: 0 !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .inline-detail {
+      margin: 0 !important;
+      padding: 8px 26px 24px !important;
+      background: #f8f3ea !important;
+      border-top: 1px solid rgba(207,195,179,0.65) !important;
+      box-shadow: inset 0 10px 18px rgba(91,79,65,0.025);
+    }
+
+    .inline-detail::before {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 1px;
+      margin: 0 0 16px;
+      background: linear-gradient(90deg, transparent, rgba(123,138,112,0.32), transparent);
+    }
+
+    .inline-detail-box,
+    .inline-detail-section {
+      background: rgba(255,253,248,0.64) !important;
+      border-color: #d8cec0 !important;
+      border-radius: 14px !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:not(.is-expanded) td {
+      border-bottom: 1.5px solid #cfc3b3 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded + tr.task-detail-row + tr.task-main-row td {
+      border-top: 6px solid rgba(255,253,248,0.88) !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row + tr.task-main-row td {
+      border-top: 6px solid rgba(255,253,248,0.88) !important;
+    }
+
+    .row-caret {
+      background: #e8ede1 !important;
+      color: #6f7f66 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded .row-caret {
+      background: #dfe8d7 !important;
+      color: #6f7f66 !important;
+    }
+
+
+
+    /* v14: code-order rows + clearer expanded group contrast without huge same-color blocks */
+    table.worklist-table tbody tr.task-main-row.is-expanded {
+      background: #fffdf8 !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      background: #fffdf8 !important;
+      border-bottom: 1px solid #cfc3b3 !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #f3eee6 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: 0 !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .inline-detail {
+      margin: 0 !important;
+      padding: 16px 26px 24px !important;
+      background:
+        linear-gradient(180deg, #f6f1e9 0%, #f1eadf 100%) !important;
+      border-top: 0 !important;
+      box-shadow: inset 0 10px 18px rgba(91,79,65,0.025);
+    }
+
+    .inline-detail::before {
+      content: "";
+      display: block;
+      height: 1px;
+      margin: 0 0 16px;
+      background: linear-gradient(90deg, transparent, rgba(123,138,112,0.26), transparent);
+    }
+
+    .inline-detail-box {
+      background: #fffdf8 !important;
+      border-color: #d6cab9 !important;
+      border-radius: 14px !important;
+    }
+
+    .inline-detail-section {
+      background: #fffdf8 !important;
+      border-color: #d6cab9 !important;
+      border-radius: 14px !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row + tr.task-main-row td {
+      border-top: 8px solid rgba(255,253,248,0.96) !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover,
+    table.worklist-table tbody tr.task-main-row.row-today:hover {
+      background: #f4f7f0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded:hover td {
+      background: #fffdf8 !important;
+    }
+
+
+
+    /* v15: expanded sidebar by default + clearer row/detail hierarchy */
+    .sidebar {
+      background:
+        linear-gradient(180deg, rgba(231,225,214,0.98), rgba(218,211,198,0.96)) !important;
+    }
+
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed-w);
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #f6f0e6 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td {
+      background:
+        linear-gradient(180deg, rgba(255,253,248,0.16), rgba(255,253,248,0)),
+        #f6f0e6 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td:first-child {
+      background:
+        radial-gradient(circle at 10px 10px, rgba(123,138,112,0.18) 1.2px, transparent 1.4px),
+        radial-gradient(circle at 22px 24px, rgba(135,153,168,0.12) 1.2px, transparent 1.4px),
+        linear-gradient(180deg, rgba(255,253,248,0.16), rgba(255,253,248,0)),
+        #f6f0e6 !important;
+      background-size: 34px 34px, 34px 34px, auto, auto !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover td,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover td,
+    table.worklist-table tbody tr.task-main-row.row-today:hover td {
+      background-color: #eef2e9 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded,
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      background-color: #f2eadf !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      border-bottom: 1px solid #c8baa8 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td:first-child {
+      background:
+        radial-gradient(circle at 10px 10px, rgba(123,138,112,0.22) 1.2px, transparent 1.4px),
+        radial-gradient(circle at 22px 24px, rgba(135,153,168,0.15) 1.2px, transparent 1.4px),
+        #f2eadf !important;
+      background-size: 34px 34px, 34px 34px, auto !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #eee6da !important;
+      border-bottom: 2px solid #b8aa98 !important;
+    }
+
+    .inline-detail {
+      background:
+        linear-gradient(180deg, #eee6da 0%, #f4eee4 100%) !important;
+      padding: 18px 26px 24px !important;
+    }
+
+    .inline-detail::before {
+      background: linear-gradient(90deg, transparent, rgba(123,138,112,0.22), transparent) !important;
+    }
+
+    .inline-detail-box {
+      background: #fffdf8 !important;
+      border-color: #d5c8b6 !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-section {
+      background: #fffdf8 !important;
+      border-color: #d5c8b6 !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-section h4,
+    .inline-detail-label,
+    .inline-detail-value {
+      text-align: center !important;
+    }
+
+    .task-bullets,
+    .task-bullets li {
+      text-align: center !important;
+      list-style-position: inside !important;
+    }
+
+    .task-bullets {
+      padding-left: 0 !important;
+    }
+
+    .inline-detail-three-col {
+      align-items: stretch;
+    }
+
+    .inline-detail-three-col .inline-detail-section:first-child {
+      background:
+        linear-gradient(180deg, rgba(255,253,248,0.98), rgba(250,247,239,0.98)) !important;
+    }
+
+    @media (max-width: 820px) {
+      .inline-detail-three-col,
+      .inline-detail-two-col,
+      .inline-detail-grid,
+      .inline-detail-grid.three {
+        grid-template-columns: 1fr !important;
+      }
+
+      .inline-detail-section,
+      .inline-detail-box {
+        width: 100%;
+      }
+    }
+
+
+
+    /* v16: remove row patterns, restore clean rounded table, truly center detail text */
+    .table-wrap {
+      border-radius: 18px !important;
+      overflow: hidden !important;
+      border: 1px solid #cfc3b3 !important;
+      background: #fffdf8 !important;
+    }
+
+    table.worklist-table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      border: none !important;
+      background: #fffdf8 !important;
+    }
+
+    table.worklist-table thead th {
+      background: #f0ebe2 !important;
+      border-top: none !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      background-image: none !important;
+    }
+
+    table.worklist-table thead th:first-child {
+      border-top-left-radius: 18px !important;
+    }
+
+    table.worklist-table thead th:last-child {
+      border-top-right-radius: 18px !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today,
+    table.worklist-table tbody tr.task-main-row.is-expanded {
+      background: #f8f3ea !important;
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td,
+    table.worklist-table tbody tr.task-main-row td:first-child,
+    table.worklist-table tbody tr.task-main-row.is-expanded td,
+    table.worklist-table tbody tr.task-main-row.is-expanded td:first-child {
+      background: #f8f3ea !important;
+      background-image: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover td,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover td,
+    table.worklist-table tbody tr.task-main-row.row-today:hover td {
+      background: #eef2e9 !important;
+      background-image: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded:hover td {
+      background: #f8f3ea !important;
+      background-image: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td {
+      border-bottom: 1.5px solid #cfc3b3 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      border-bottom: 1px solid #c9bca9 !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      background: #f1eadf !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: 0 !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .inline-detail {
+      background:
+        linear-gradient(180deg, #f1eadf 0%, #f6f1e9 100%) !important;
+      border-top: none !important;
+      box-shadow: inset 0 10px 18px rgba(91,79,65,0.02) !important;
+    }
+
+    .inline-detail::before {
+      background: linear-gradient(90deg, transparent, rgba(123,138,112,0.20), transparent) !important;
+    }
+
+    .inline-detail-box,
+    .inline-detail-section {
+      background: #fffdf8 !important;
+      border-color: #d5c8b6 !important;
+      border-radius: 14px !important;
+      box-shadow: none !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-section h4,
+    .inline-detail-label,
+    .inline-detail-value {
+      text-align: center !important;
+      width: 100%;
+      display: block;
+    }
+
+    .task-bullets {
+      list-style: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      text-align: center !important;
+    }
+
+    .task-bullets li {
+      list-style: none !important;
+      margin: 0 auto 6px !important;
+      padding: 0 !important;
+      text-align: center !important;
+      max-width: 92%;
+    }
+
+    .task-bullets li::before {
+      content: none !important;
+    }
+
+    .empty-mark {
+      text-align: center !important;
+      width: 100%;
+      display: block;
+    }
+
+    .row-caret {
+      background: #e8ede1 !important;
+      color: #6f7f66 !important;
+    }
+
+
+
+    /* v17 accepted palette + connected expanded group + thinner fancy separator */
+    .table-wrap {
+      border: 1px solid #cfc3b3 !important;
+      border-radius: 18px !important;
+      overflow: hidden !important;
+      background: #fffdf8 !important;
+    }
+
+    table.worklist-table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      border: none !important;
+      background: #fffdf8 !important;
+    }
+
+    table.worklist-table thead th {
+      background: #EEE8DF !important;
+      color: #776f65 !important;
+      border-bottom: 2px solid #bfb2a2 !important;
+      border-top: none !important;
+      text-align: center !important;
+      padding-top: 16px !important;
+      padding-bottom: 16px !important;
+    }
+
+    table.worklist-table thead th:first-child {
+      border-top-left-radius: 18px !important;
+    }
+
+    table.worklist-table thead th:last-child {
+      border-top-right-radius: 18px !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row,
+    table.worklist-table tbody tr.task-main-row:nth-of-type(4n+1),
+    table.worklist-table tbody tr.task-main-row.row-overdue,
+    table.worklist-table tbody tr.task-main-row.row-today {
+      background: #FFFCF6 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row td {
+      background: #FFFCF6 !important;
+      border-bottom: 1.5px solid #cfc3b3 !important;
+      border-left: none !important;
+      border-right: none !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row:hover td,
+    table.worklist-table tbody tr.task-main-row.row-overdue:hover td,
+    table.worklist-table tbody tr.task-main-row.row-today:hover td {
+      background: #fbf7ef !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td {
+      background: #FFFCF6 !important;
+      border-bottom: 0 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td:first-child {
+      border-left: 1px solid #bfb2a2 !important;
+    }
+
+    table.worklist-table tbody tr.task-main-row.is-expanded td:last-child {
+      border-right: 1px solid #bfb2a2 !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell {
+      position: relative;
+      background: #F6F1E9 !important;
+      border-top: 1px solid #cfc3b3 !important;
+      border-left: 1px solid #bfb2a2 !important;
+      border-right: 1px solid #bfb2a2 !important;
+      border-bottom: 0 !important;
+      padding: 20px 24px 22px !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    table.worklist-table tbody tr.task-detail-row .expand-cell::after {
+      content: "";
+      position: absolute;
+      left: -1px;
+      right: -1px;
+      bottom: 0;
+      height: 12px;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.98) 0,
+          rgba(255,255,255,0.98) 3px,
+          rgba(185,173,157,0.88) 3px,
+          rgba(185,173,157,0.88) 8px,
+          rgba(255,255,255,0.98) 8px,
+          rgba(255,255,255,0.98) 12px
+        );
+      border-left: 1px solid #bfb2a2;
+      border-right: 1px solid #bfb2a2;
+      pointer-events: none;
+    }
+
+    tr.task-detail-row + tr.task-main-row td {
+      border-top: 0 !important;
+    }
+
+    .inline-detail {
+      background: transparent !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-top: none !important;
+      box-shadow: none !important;
+    }
+
+    .inline-detail::before {
+      content: none !important;
+    }
+
+    .inline-detail-box,
+    .inline-detail-section {
+      background: #fffdf8 !important;
+      border: 1px solid #d5c8b6 !important;
+      border-radius: 14px !important;
+      text-align: center !important;
+      box-shadow: none !important;
+    }
+
+    .inline-detail-section h4,
+    .inline-detail-label,
+    .inline-detail-value,
+    .empty-mark {
+      text-align: center !important;
+      display: block;
+      width: 100%;
+    }
+
+    .task-bullets {
+      list-style: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      color: #4f4a43 !important;
+      font-size: 14px !important;
+      line-height: 1.8 !important;
+      text-align: center !important;
+    }
+
+    .task-bullets li {
+      list-style: none !important;
+      margin: 0 auto 6px !important;
+      padding: 0 !important;
+      text-align: center !important;
+      max-width: 92%;
+    }
+
+    .task-bullets li::before {
+      content: none !important;
+    }
+
+    .row-caret {
+      background: #e8ede1 !important;
+      color: #6f7f66 !important;
+    }
+
+    @media (max-width: 820px) {
+      table.worklist-table tbody tr.task-detail-row .expand-cell {
+        padding: 16px 16px 18px !important;
+      }
+      table.worklist-table tbody tr.task-detail-row .expand-cell::after {
+        height: 10px;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(255,255,255,0.98) 0,
+            rgba(255,255,255,0.98) 3px,
+            rgba(185,173,157,0.88) 3px,
+            rgba(185,173,157,0.88) 7px,
+            rgba(255,255,255,0.98) 7px,
+            rgba(255,255,255,0.98) 10px
+          );
+      }
+    }
+
+
+
+    /* v18: truly center content/progress/remarks text inside detail cards */
+    .inline-detail-section {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-section h4 {
+      width: 100% !important;
+      text-align: center !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .inline-detail-section .task-bullets {
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 auto !important;
+      list-style: none !important;
+      text-align: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 10px !important;
+    }
+
+    .inline-detail-section .task-bullets li {
+      list-style: none !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 92% !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      text-align: center !important;
+      line-height: 1.85 !important;
+    }
+
+    .inline-detail-section .task-bullets li::before,
+    .inline-detail-section .task-bullets li::marker {
+      content: none !important;
+    }
+
+    .inline-detail-section .empty-mark {
+      width: 100% !important;
+      text-align: center !important;
+      display: block !important;
+      margin: 0 auto !important;
+    }
+
+
+
+    /* v19: force center the three detail content blocks and remove left-indented bullets */
+    .inline-detail-three-col .inline-detail-section {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section h4 {
+      width: 100% !important;
+      margin: 0 0 10px !important;
+      text-align: center !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets {
+      width: 100% !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      list-style: none !important;
+      text-align: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li {
+      width: 100% !important;
+      max-width: 92% !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      list-style: none !important;
+      text-align: center !important;
+      line-height: 1.85 !important;
+      display: block !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li::before,
+    .inline-detail-three-col .inline-detail-section .task-bullets li::marker {
+      content: none !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .empty-mark {
+      width: 100% !important;
+      margin: 0 auto !important;
+      text-align: center !important;
+      display: block !important;
+    }
+
+
+
+    /* v20: detail content should be LEFT-ALIGNED with visible bullets/markers */
+    .inline-detail-three-col .inline-detail-section {
+      text-align: left !important;
+      align-items: stretch !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section h4 {
+      text-align: center !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets {
+      width: 100% !important;
+      margin: 0 !important;
+      padding-left: 1.35rem !important;
+      list-style: disc !important;
+      text-align: left !important;
+      display: block !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 0 10px 0 !important;
+      padding: 0 !important;
+      list-style: disc !important;
+      text-align: left !important;
+      line-height: 1.85 !important;
+      display: list-item !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li::before {
+      content: none !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .empty-mark {
+      width: 100% !important;
+      margin: 0 !important;
+      text-align: left !important;
+      display: block !important;
+      padding-left: 0.2rem !important;
+    }
+
+
+
+    /* v21: bullet style like sample image */
+    .inline-detail-three-col .inline-detail-section .task-bullets {
+      width: 100% !important;
+      margin: 0 !important;
+      padding-left: 1.4rem !important;
+      list-style: disc !important;
+      list-style-position: outside !important;
+      text-align: left !important;
+      display: block !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li {
+      display: list-item !important;
+      list-style: disc !important;
+      list-style-position: outside !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 0 10px 0 !important;
+      padding: 0 !important;
+      text-align: left !important;
+      line-height: 1.9 !important;
+      color: #4a443d !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li::marker {
+      color: #2f2a26 !important;
+      font-size: 1.05em !important;
+    }
+
+
+
+    /* v22: guaranteed visible black bullets for current two-column detail layout */
+    .inline-detail-two-col .inline-detail-section {
+      text-align: left !important;
+    }
+
+    .inline-detail-two-col .inline-detail-section h4 {
+      text-align: center !important;
+    }
+
+    .inline-detail-two-col .task-bullets {
+      list-style: none !important;
+      margin: 0 !important;
+      padding: 0 0 0 0.2rem !important;
+      width: 100% !important;
+    }
+
+    .inline-detail-two-col .task-bullets li {
+      position: relative !important;
+      list-style: none !important;
+      display: block !important;
+      text-align: left !important;
+      line-height: 1.9 !important;
+      margin: 0 0 12px 0 !important;
+      padding: 0 0 0 1.35rem !important;
+      color: #4a443d !important;
+      max-width: 100% !important;
+    }
+
+    .inline-detail-two-col .task-bullets li::before {
+      content: "•" !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0.02rem !important;
+      color: #2f2a26 !important;
+      font-size: 1.15rem !important;
+      line-height: 1.5 !important;
+      font-weight: 700 !important;
+    }
+
+    .inline-detail-two-col .empty-mark {
+      display: block !important;
+      width: 100% !important;
+      text-align: left !important;
+      padding-left: 0.2rem !important;
+    }
+
+
+
+    /* v23: visible bullets for the actual three-column detail layout */
+    .inline-detail-three-col .inline-detail-section {
+      text-align: left !important;
+      align-items: stretch !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section h4 {
+      text-align: center !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets {
+      list-style: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      display: block !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li {
+      position: relative !important;
+      list-style: none !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 0 12px 0 !important;
+      padding: 0 0 0 1.35rem !important;
+      text-align: left !important;
+      line-height: 1.9 !important;
+      color: #4a443d !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .task-bullets li::before {
+      content: "•" !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0.02rem !important;
+      color: #2f2a26 !important;
+      font-size: 1.12rem !important;
+      line-height: 1.5 !important;
+      font-weight: 700 !important;
+    }
+
+    .inline-detail-three-col .inline-detail-section .empty-mark {
+      display: block !important;
+      width: 100% !important;
+      text-align: left !important;
+      padding-left: 0.2rem !important;
+      margin: 0 !important;
+    }
+
+
+
+    /* v24: expandable highest-priority cards showing task content only */
+    .priority-list {
+      gap: 12px !important;
+    }
+
+    .priority-item.priority-expandable {
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+
+    .priority-item.priority-expandable:hover {
+      transform: translateY(-1px);
+      border-color: rgba(123,138,112,0.34) !important;
+    }
+
+    .priority-item.priority-expandable .priority-title::after {
+      content: "點擊展開任務內容";
+      display: inline-flex;
+      margin-left: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(123,138,112,0.12);
+      color: #6f7f66;
+      font-size: 11px;
+      font-weight: 850;
+      vertical-align: middle;
+    }
+
+    .priority-item.priority-expandable.is-open .priority-title::after {
+      content: "已展開";
+      background: rgba(135,153,168,0.13);
+      color: #617584;
+    }
+
+    .priority-content-detail {
+      grid-column: 1 / -1;
+      display: none;
+      margin-top: 2px;
+      padding: 14px 16px 14px 18px;
+      background: #fffdf8;
+      border: 1px solid #d5c8b6;
+      border-radius: 14px;
+    }
+
+    .priority-item.is-open .priority-content-detail {
+      display: block;
+    }
+
+    .priority-content-title {
+      margin: 0 0 8px;
+      color: #6f7f66;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .priority-content-list {
+      margin: 0;
+      padding-left: 1.25rem;
+      color: #4a443d;
+      line-height: 1.9;
+      font-size: 14px;
+    }
+
+    .priority-content-list li {
+      margin: 0 0 7px 0;
+      text-align: left;
+    }
+
+    .priority-content-list li::marker {
+      color: #2f2a26;
+      font-size: 1.05em;
+    }
+
+
+    @media print {
+      .password-gate, .sidebar, .mobile-nav { display: none !important; }
+      main { margin-left: 0 !important; padding: 0; }
+      body { background: white; }
+      .section-card, .hero, .task-card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="passwordGate" class="password-gate">
+    <div class="auth-card">
+      <div class="auth-intro">
+        <div class="auth-copy">
+          <div class="login-kicker">Private Worklist · Morandi Dashboard</div>
+          <h1>Joanne Worklist Dashboard</h1>
+          <p>你的個人工作任務中控台。Telegram Bot 負責新增、更新與完成標記；此頁只用來快速查看目前任務狀態與交付壓力。</p>
+
+          <div class="auth-flow">
+            <div class="auth-flow-item">
+              <strong id="loginMetricOpen">—</strong>
+              <span>未完成任務</span>
+            </div>
+            <div class="auth-flow-item">
+              <strong id="loginMetricOverdue">—</strong>
+              <span>已逾期</span>
+            </div>
+            <div class="auth-flow-item">
+              <strong id="loginMetricToday">—</strong>
+              <span>今日到期</span>
+            </div>
+          </div>
+
+          <div class="auth-note">
+            左側導覽可切換「我被交辦的工作」與「我交辦的工作」；Sidebar 可收合，右側內容會自動放大。
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-form">
+        <div class="eyebrow">Access Required</div>
+        <h2>輸入 Dashboard 密碼</h2>
+        <p>驗證成功後，本分頁重新整理不需要重輸；關閉分頁後下次需重新輸入。</p>
+        <label class="password-label" for="passwordInput">Dashboard Password</label>
+        <div class="password-row">
+          <input id="passwordInput" class="password-input" type="password" placeholder="輸入密碼" autocomplete="current-password" />
+          <button id="passwordButton" class="password-btn" type="button">進入</button>
+        </div>
+        <div id="passwordError" class="password-error" aria-live="polite"></div>
+        <div class="password-hint">
+          密碼可在 HTML 裡搜尋 <strong>DASHBOARD_PASSWORD</strong> 後直接修改。這是前端簡易保護，不等同伺服器端權限控管。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-text">
+          <div class="brand-title">Joanne Worklist</div>
+          <div class="brand-subtitle">純讀取任務中控台</div>
+        </div>
+        <button id="collapseSidebarBtn" class="collapse-btn" type="button" title="收合 / 展開 sidebar">‹</button>
+      </div>
+      <nav id="sidebarNav"></nav>
+    </aside>
+
+    <div class="mobile-nav">
+      <select id="mobileNavSelect" aria-label="Dashboard section navigation"></select>
+    </div>
+
+    <main>
+      <div class="container">
+        <section id="overview" class="hero page-section active-page">
+          <div class="hero-content">
+            <div class="eyebrow">最後更新日期 · <span id="lastUpdatedText"></span></div>
+            <h1>總覽</h1>
+            <div id="overviewRadarGrid" class="radar-grid overview-radar-grid"></div>
+          </div>
+        </section>
+
+        <section id="my-tasks" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我被交辦的工作｜任務總表</h2>
+              <p class="section-desc">顯示所有未完成任務。點擊任一列可展開任務明細；逾期截止日以紅色粗體標示，今日到期以土黃色粗體標示。</p>
+            </div>
+            <div class="worklist-toolbar">
+              <button id="collapseAllDetailsBtn" class="soft-action-btn collapse" type="button">全部收回</button>
+              <button id="expandAllDetailsBtn" class="soft-action-btn" type="button">全部展開</button>
+            </div>
+          </div>
+          <div id="myTasksTable"></div>
+        </section>
+
+        <section id="top-priority" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我被交辦的工作｜最高優先處理</h2>
+              <p class="section-desc">自動計算前 5 名最緊急任務：已逾期 > 今日到期 > 高優先 + 截止日近 > 其他。</p>
+            </div>
+          </div>
+          <div id="priorityList" class="priority-list"></div>
+        </section>
+
+        <section id="missing" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我被交辦的工作｜需要補充資料</h2>
+              <p class="section-desc">自動找出 deadline、deliver_to 或 assigned_by 欄位空白的未完成任務。</p>
+            </div>
+          </div>
+          <div id="missingList" class="missing-list"></div>
+        </section>
+
+        <section id="delegated" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我交辦的工作｜任務總表</h2>
+              <p class="section-desc">顯示所有未完成的交辦任務，依下次確認進度日期排序。</p>
+            </div>
+            <div class="worklist-toolbar">
+              <button id="delegatedCollapseAllDetailsBtn" class="soft-action-btn collapse" type="button">全部收回</button>
+              <button id="delegatedExpandAllDetailsBtn" class="soft-action-btn" type="button">全部展開</button>
+            </div>
+          </div>
+          <div id="delegatedTable"></div>
+        </section>
+
+        <section id="delegated-priority" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我交辦的工作｜最高優先處理</h2>
+              <p class="section-desc">優先顯示今天以前需要確認進度、已逾期或截止日接近的交辦任務。</p>
+            </div>
+          </div>
+          <div id="delegatedPriorityList" class="priority-list"></div>
+        </section>
+
+        <section id="delegated-missing" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>我交辦的工作｜需要補充資料</h2>
+              <p class="section-desc">自動找出 assigned_to、deadline 或 check_date 欄位空白的交辦任務。</p>
+            </div>
+          </div>
+          <div id="delegatedMissingList" class="missing-list"></div>
+        </section>
+
+        <section id="completed" class="section-card page-section">
+          <div class="section-title-row">
+            <div>
+              <h2>近三個月已完成任務</h2>
+              <p class="section-desc">顯示最近 90 天完成的我的任務與交辦任務。點擊任一列可展開完成任務明細。</p>
+            </div>
+          </div>
+          <div id="completedTable"></div>
+        </section>
+
+
+        <div class="footer-note">
+          Joanne Worklist Dashboard · Static HTML generated from task data variables.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /**************************************************************
+     * 你可以直接修改這個密碼
+     **************************************************************/
+    const DASHBOARD_PASSWORD = "123456";
+
+    /**************************************************************
+     * n8n 之後只需要替換以下資料區塊
+     **************************************************************/
+    const LAST_UPDATED = "2026-06-14 12:00";
+
+    const MY_TASKS = [
+      {
+        task_id: "T001",
+        title: "整理 6/9、6/10 各窗口同步會議紀錄",
+        status: "完成",
+        priority: "高",
+        deadline: "2026-06-11",
+        assigned_by: "會議 / 我自己新增",
+        deliver_to: "台中辦公室企劃",
+        note: "將 6/9、6/10 各窗口同步內容整理成會議紀錄，提供給台中辦公室企劃。風險：已超過原定交付日，若尚未完成，會影響台中企劃掌握同步內容。",
+        completed_date: "2026-06-14",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T002",
+        title: "整理 LAKI 合規站五大面向交接資料與建立共用雲端硬碟",
+        status: "進行中",
+        priority: "高",
+        deadline: "2026-06-16",
+        assigned_by: "LAKI 合規站交接 / 我自己新增",
+        deliver_to: "",
+        note: "五大面向包含：財務、研發、營運、客服、行銷。下一步：建立 Google 共用雲端硬碟，將原站方陸續提供的資料放入雲端，並更新資料繳交狀態。風險：原站方資料仍在陸續回覆中；若資料未齊，交接整理會被卡住。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T003",
+        title: "規劃台中辦公室與菲律賓辦公室開發進度同步 SOP",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-22",
+        assigned_by: "PM 職責 / 我自己新增",
+        deliver_to: "",
+        note: "擬定兩地辦公室同步開發進度的流程、節奏、會議機制、資訊格式與責任分工。背景：LAKI 合規站接手後需要整站翻新，PM 需要掌握台中研發與菲律賓辦公室的同步機制。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T004",
+        title: "研究四大合規站競品功能、玩法與營運模式",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-14",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "研究重點包含：站內功能、怎麼玩、產品核心、與市場最大區隔、如何經營合規站。風險：四個站研究範圍大，若未定義研究模板，容易失焦或產出不一致。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T005",
+        title: "完成四大合規站與金流渠道的 KYC",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "包含站方 KYC、金流渠道 KYC。下一步：逐一完成四大合規站與金流渠道 KYC，並保存通過紀錄與錄影。風險：尚未提供 Deadline；KYC 可能受審核時間影響，存在外部等待風險。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T006",
+        title: "整理台中辦公室企劃缺失資料，向相關窗口詢問並提供",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-17",
+        assigned_by: "台中辦公室企劃需求 / 會議中指派",
+        deliver_to: "台中辦公室企劃",
+        note: "待確認事項清單：\n1. 登入 QR code 是什麼機制、幹嘛用｜Nara → Freak｜6/10\n2. KYC 必填欄位的 PACO 法規下限，本國人 vs 外國護照｜Nara → 法務 / PACO 法規｜6/10\n3. KYC 審核規則、廠商判斷機制，疑慮列清單給 Nara 去問｜Nara → KYC 廠商，未來預計換 Sumsub｜6/10\n4. 合規站關閉系統是否需送審、提前公告多久｜Nara → 法務｜6/10\n5. PACO 是否透過後台看數據，看 PACO 群組勾選｜Nara 查後台；沒勾則找佳倫｜6/10\n6. 優惠券代碼的用途與發送方式，附截圖給 Nara｜Nara 去問｜6/10\n7. OKBet 明面招募 agent 為何合法｜Nara → 阿智 / Anton｜6/11\n8. 玩家標籤（分群）的數據組規劃｜直接找佳倫｜6/11\n9. 客服常見問題集｜保羅赴菲後整理，原始資料可先丟過來｜6/11\n10. Lucky Point 是否保留｜討論循環時決定｜6/10",
+        progress_update: "已整理好資料，預計 2026-06-15 提供給原站長團隊，請他們協助回覆相關資訊。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T007",
+        title: "記錄配合博彩局稽核之完整 KYC 開啟流程",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "合規 / 稽核需求",
+        deliver_to: "",
+        note: "目前相關群組為 Lucky RAC 與 RAC PAGCOR 兩個 Telegram 群。主要處理法規相關、博彩局 / PAGCOR 稽核相關流程；工作上需要將這些流程完整記錄下來，並整理成流程圖。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T008",
+        title: "整理現有站方營運各面向 SOP",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "整理現有站方各面向 SOP，包含客服客訴、機台問題、財務流程、定期繳交資料等。目標是形成一份完整營運 SOP 文件。風險：範圍很大，建議拆成部門 / 情境型 SOP 子任務，避免整理失控。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      }
+    ];
+
+    const DELEGATED_TASKS = [
+      /*
+      {
+        task_id: "D001",
+        title: "任務名稱",
+        assigned_to: "小明",
+        status: "進行中",
+        deadline: "2026-06-20",
+        check_date: "2026-06-17",
+        note: "",
+        completed_date: "",
+        created_date: "2026-06-13"
+      }
+      */
+    ];
+
+    /**************************************************************
+     * Dashboard rendering logic
+     **************************************************************/
+    const NAV_GROUPS = [
+      {
+        title: "總覽",
+        items: [
+          ["overview", "總覽"]
+        ]
+      },
+      {
+        title: "我被交辦的工作",
+        items: [
+          ["my-tasks", "任務總表"],
+          ["top-priority", "最高優先處理"],
+          ["missing", "需要補充資料"]
+        ]
+      },
+      {
+        title: "我交辦的工作",
+        items: [
+          ["delegated", "任務總表"],
+          ["delegated-priority", "最高優先處理"],
+          ["delegated-missing", "需要補充資料"]
+        ]
+      },
+      {
+        title: "歷史紀錄",
+        items: [
+          ["completed", "近三個月已完成"]
+        ]
+      }
+    ];
+
+    const NAV_ITEMS = [].concat.apply([], NAV_GROUPS.map(group => group.items));
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const TODAY = getDashboardToday();
+
+    function getDashboardToday() {
+      const dateText = String(LAST_UPDATED || "").slice(0, 10);
+      const parsed = parseDateRaw(dateText);
+      if (parsed) return parsed;
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function parseDateRaw(value) {
+      if (!value) return null;
+      const normalized = String(value).trim();
+      if (!normalized) return null;
+      const date = new Date(normalized + (normalized.length === 10 ? "T00:00:00" : ""));
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    function parseDate(value) { return parseDateRaw(value); }
+    function formatDate(value) { return value ? value : "—"; }
+
+    function daysDiff(dateValue) {
+      const d = parseDate(dateValue);
+      if (!d) return null;
+      const start = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const today = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+      return Math.round((start - today) / MS_PER_DAY);
+    }
+
+    function isCompleted(task) {
+      return task.status === "完成" || !!String(task.completed_date || "").trim();
+    }
+
+    function isActiveMyTask(task) {
+      return !isCompleted(task) && (task.status === "待辦" || task.status === "進行中");
+    }
+
+    function isActiveDelegatedTask(task) {
+      return !isCompleted(task) && (task.status === "待確認" || task.status === "進行中");
+    }
+
+    function priorityRank(priority) {
+      return { "高": 3, "中": 2, "低": 1 }[priority] || 0;
+    }
+
+    function deadlineRank(task) {
+      const diff = daysDiff(task.deadline);
+      if (diff === null) return 99999;
+      return diff;
+    }
+
+    function taskTimeClass(task) {
+      const diff = daysDiff(task.deadline);
+      if (diff === null) return "";
+      if (diff < 0) return "overdue";
+      if (diff === 0) return "today";
+      return "";
+    }
+
+    function getUrgencyReason(task) {
+      const diff = daysDiff(task.deadline);
+      if (diff !== null && diff < 0) return `已逾期 ${Math.abs(diff)} 天，需要優先補交或確認是否已完成。`;
+      if (diff === 0) return "今日到期，需在今天內完成或確認交付狀態。";
+      if (task.priority === "高" && diff !== null) return `高優先任務，距離截止日剩 ${diff} 天。`;
+      if (task.priority === "高") return "高優先任務，但目前缺少 Deadline，需補齊時程資訊。";
+      if (diff !== null && diff <= 3) return `三天內到期，距離截止日剩 ${diff} 天。`;
+      return "未完成任務，依目前排序列入追蹤。";
+    }
+
+    function sortMyTasks(a, b) {
+      return priorityRank(b.priority) - priorityRank(a.priority)
+        || deadlineRank(a) - deadlineRank(b)
+        || String(a.task_id).localeCompare(String(b.task_id));
+    }
+
+    function sortPriority(a, b) {
+      const aDiff = daysDiff(a.deadline);
+      const bDiff = daysDiff(b.deadline);
+      const aOver = aDiff !== null && aDiff < 0 ? 1 : 0;
+      const bOver = bDiff !== null && bDiff < 0 ? 1 : 0;
+      if (aOver !== bOver) return bOver - aOver;
+      const aToday = aDiff === 0 ? 1 : 0;
+      const bToday = bDiff === 0 ? 1 : 0;
+      if (aToday !== bToday) return bToday - aToday;
+      return priorityRank(b.priority) - priorityRank(a.priority)
+        || deadlineRank(a) - deadlineRank(b)
+        || String(a.task_id).localeCompare(String(b.task_id));
+    }
+
+    function sortDelegated(a, b) {
+      const ar = parseDate(a.check_date) ? daysDiff(a.check_date) : 99999;
+      const br = parseDate(b.check_date) ? daysDiff(b.check_date) : 99999;
+      return ar - br || String(a.task_id).localeCompare(String(b.task_id));
+    }
+
+    function escapeHTML(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function displayId(taskId) {
+      const raw = String(taskId || "").trim();
+      const match = raw.match(/\d+/);
+      const digits = match ? match[0] : raw;
+      if (/^\d+$/.test(digits)) return digits.padStart(3, "0");
+      return raw;
+    }
+
+    function chipForStatus(status) {
+      return `<span class="chip status">${escapeHTML(status || "—")}</span>`;
+    }
+
+    function chipForPriority(priority) {
+      const cls = priority === "高" ? "high" : priority === "中" ? "mid" : "low";
+      return `<span class="chip ${cls}">${escapeHTML(priority || "—")}</span>`;
+    }
+
+    function scheduleStatusLabel(task) {
+      const cls = taskTimeClass(task);
+      if (cls === "overdue") return "已逾期";
+      if (cls === "today") return "今日到期";
+      return "未到期";
+    }
+
+    function scheduleStatusPill(task) {
+      const cls = taskTimeClass(task);
+      if (cls === "overdue") return `<span class="schedule-chip overdue">已逾期</span>`;
+      if (cls === "today") return `<span class="schedule-chip today">今日到期</span>`;
+      return `<span class="schedule-chip normal">未到期</span>`;
+    }
+
+    function taskStatusChip(task) {
+      return `<span class="chip status">任務狀態：${escapeHTML(task.status || "—")}</span>`;
+    }
+
+    function splitTaskNote(note) {
+      const raw = String(note || "").trim();
+      if (!raw) {
+        return {
+          content: ["尚未補充任務內容。"],
+          remarks: []
+        };
+      }
+
+      const normalized = raw.replace(/\r/g, "");
+      const riskIndex = normalized.search(/風險[:：]/);
+      const remarkIndex = normalized.search(/備註[:：]/);
+      const splitIndexCandidates = [riskIndex, remarkIndex].filter(i => i >= 0);
+      const splitIndex = splitIndexCandidates.length ? Math.min(...splitIndexCandidates) : -1;
+
+      let contentText = normalized;
+      let remarkText = "";
+
+      if (splitIndex >= 0) {
+        contentText = normalized.slice(0, splitIndex).trim();
+        remarkText = normalized.slice(splitIndex).trim();
+      }
+
+      return {
+        content: textToBullets(contentText || normalized),
+        remarks: remarkText ? textToBullets(remarkText) : []
+      };
+    }
+
+    function textToBullets(text) {
+      return String(text || "")
+        .replace(/。/g, "。\\n")
+        .replace(/；/g, "；\\n")
+        .split("\\n")
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => line.replace(/^[-•]\\s*/, ""));
+    }
+
+    function renderInlineTaskDetail(task) {
+      const split = splitTaskNote(task.note);
+      return `
+        <div class="inline-detail">
+          <div class="inline-detail-grid">
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">交辦人</span>
+              <span class="inline-detail-value">${escapeHTML(task.assigned_by || "—")}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">完成後交給誰</span>
+              <span class="inline-detail-value">${escapeHTML(task.deliver_to || "—")}</span>
+            </div>
+          </div>
+          <div class="inline-detail-two-col">
+            <div class="inline-detail-section">
+              <h4>任務內容</h4>
+              <ul class="task-bullets">
+                ${split.content.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+              </ul>
+            </div>
+            <div class="inline-detail-section">
+              <h4>備註說明</h4>
+              ${split.remarks.length
+                ? `<ul class="task-bullets">${split.remarks.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`
+                : `<div class="empty-mark">—</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+
+    function deadlineCell(task) {
+      const cls = taskTimeClass(task);
+      const deadline = escapeHTML(formatDate(task.deadline));
+      if (cls === "overdue") return `<span class="deadline-overdue">${deadline}</span>`;
+      if (cls === "today") return `<span class="deadline-today">${deadline}</span>`;
+      return deadline;
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("sidebarNav");
+      nav.innerHTML = NAV_GROUPS.map(group => `
+        <div class="nav-block">
+          <div class="nav-group-title">${escapeHTML(group.title)}</div>
+          ${group.items.map(([id, label]) => `<a class="nav-link" href="#${id}" title="${escapeHTML(label)}"><span class="nav-dot"></span><span class="nav-label">${escapeHTML(label)}</span></a>`).join("")}
+        </div>
+      `).join("");
+
+      const select = document.getElementById("mobileNavSelect");
+      select.innerHTML = NAV_GROUPS.map(group => `
+        <optgroup label="${escapeHTML(group.title)}">
+          ${group.items.map(([id, label]) => `<option value="${id}">${escapeHTML(label)}</option>`).join("")}
+        </optgroup>
+      `).join("");
+
+      select.addEventListener("change", e => {
+        const targetEl = document.getElementById(e.target.value);
+        if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+      });
+
+      const links = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+      const sections = NAV_ITEMS.map(([id]) => document.getElementById(id)).filter(Boolean);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            links.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+            select.value = entry.target.id;
+          }
+        });
+      }, { rootMargin: "-30% 0px -60% 0px", threshold: 0.01 });
+
+      sections.forEach(section => observer.observe(section));
+    }
+
+    function renderSummary() {
+      const activeMy = MY_TASKS.filter(isActiveMyTask);
+      const activeDelegated = DELEGATED_TASKS.filter(isActiveDelegatedTask);
+
+      const allTasksCount = MY_TASKS.length + DELEGATED_TASKS.length;
+      const incompleteCount = activeMy.length + activeDelegated.length;
+      const highPriorityCount = activeMy.filter(t => t.priority === "高").length;
+      const todayDueCount = activeMy.filter(t => daysDiff(t.deadline) === 0).length + activeDelegated.filter(t => daysDiff(t.deadline) === 0).length;
+      const overdueCount = activeMy.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      }).length + activeDelegated.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      }).length;
+      const delegatedCheckThisWeek = activeDelegated.filter(t => {
+        const diff = daysDiff(t.check_date);
+        return diff !== null && diff >= 0 && diff <= 7;
+      }).length;
+
+      const cards = [
+        ["全部任務數", allTasksCount, "sage"],
+        ["未完成任務", incompleteCount, "blue"],
+        ["高優先度", highPriorityCount, "sage"],
+        ["今日到期", todayDueCount, "warning"],
+        ["已逾期", overdueCount, "danger"],
+        ["本週需確認交辦", delegatedCheckThisWeek, "blue"]
+      ];
+
+      document.getElementById("summaryGrid").innerHTML = cards.map(([label, value, cls]) => `
+        <div class="summary-card ${cls}">
+          <div class="summary-label">${label}</div>
+          <div class="summary-value">${value}</div>
+        </div>
+      `).join("");
+
+      document.getElementById("loginMetricOpen").textContent = incompleteCount;
+      document.getElementById("loginMetricOverdue").textContent = overdueCount;
+      document.getElementById("loginMetricToday").textContent = todayDueCount;
+    }
+
+    function tableOrEmpty(headers, rows, emptyText, tableClass = "") {
+      if (!rows.length) return `<div class="empty-state">${emptyText}</div>`;
+      const cls = tableClass ? ` class="${tableClass}"` : "";
+      return `
+        <div class="table-scroll-area">
+          <div class="table-wrap">
+            <table${cls}>
+              <thead><tr>${headers.map(h => `<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
+              <tbody>${rows.join("")}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMyTasksTable() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortMyTasks);
+      const rows = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        const rowId = `detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        return `
+          <tr class="task-main-row ${cls === "overdue" ? "row-overdue" : cls === "today" ? "row-today" : ""}" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${deadlineCell(t)}</td>
+            <td class="nowrap">${scheduleStatusPill(t)}</td>
+            <td class="nowrap">${chipForPriority(t.priority)}</td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row hidden">
+            <td colspan="5" class="expand-cell">
+              ${renderInlineTaskDetail(t)}
+            </td>
+          </tr>
+        `;
+      });
+      document.getElementById("myTasksTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "目前時程狀態", "優先度"],
+        rows,
+        "目前沒有未完成的我的任務。",
+        "worklist-table"
+      );
+
+      document.querySelectorAll(".task-main-row").forEach(row => {
+        const toggle = () => {
+          const detailId = row.getAttribute("data-detail-id");
+          const detail = document.getElementById(detailId);
+          const isOpen = !detail.classList.contains("hidden");
+          detail.classList.toggle("hidden", isOpen);
+          row.classList.toggle("is-expanded", !isOpen);
+          row.setAttribute("aria-expanded", String(!isOpen));
+          syncToggleAllButton();
+        };
+        row.addEventListener("click", toggle);
+        row.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+      });
+
+      initToggleAllDetails();
+    }
+
+    function renderPriorityList() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortPriority).slice(0, 5);
+      if (!tasks.length) {
+        document.getElementById("priorityList").innerHTML = `<div class="empty-state">目前沒有需要優先處理的未完成任務。</div>`;
+        return;
+      }
+
+      document.getElementById("priorityList").innerHTML = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        return `
+          <div class="priority-item ${cls === "overdue" ? "is-overdue" : cls === "today" ? "is-today" : ""}">
+            <div>
+              <p class="priority-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</p>
+              <p class="priority-reason">${escapeHTML(getUrgencyReason(t))}</p>
+              <p class="priority-reason">Deadline：${escapeHTML(formatDate(t.deadline))}　優先級：${escapeHTML(t.priority)}　交付對象：${escapeHTML(t.deliver_to || "—")}</p>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRadar() {
+      const activeMy = MY_TASKS.filter(isActiveMyTask);
+      const activeDelegated = DELEGATED_TASKS.filter(isActiveDelegatedTask);
+
+      const overdue = activeMy.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      });
+      const today = activeMy.filter(t => daysDiff(t.deadline) === 0);
+      const dueThisWeek = activeMy.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff >= 0 && diff <= 7;
+      });
+      const delegatedNeedCheck = activeDelegated.filter(t => {
+        const diff = daysDiff(t.check_date);
+        return diff !== null && diff <= 0;
+      });
+      const missing = findMissingInfo();
+
+      const cards = [
+        ["已逾期", overdue, "danger"],
+        ["今日到期", today, "warning"],
+        ["本週到期", dueThisWeek, "blue"],
+        ["今日需確認交辦", delegatedNeedCheck, "warning"],
+        ["資訊不足", missing, "clay"]
+      ];
+
+      document.getElementById("radarGrid").innerHTML = cards.map(([label, items, cls]) => `
+        <div class="radar-card ${cls}">
+          <h3>${label}</h3>
+          <div class="radar-number">${items.length}</div>
+          ${items.length ? `<ol class="mini-list">${items.slice(0, 4).map(item => `<li>${escapeHTML(displayId(item.task_id))}｜${escapeHTML(item.title)}</li>`).join("")}</ol>` : `<div class="muted">目前沒有</div>`}
+        </div>
+      `).join("");
+    }
+
+
+    function getDetailRows() {
+      return Array.prototype.slice.call(document.querySelectorAll(".task-detail-row"));
+    }
+
+    function getMainRows() {
+      return Array.prototype.slice.call(document.querySelectorAll(".task-main-row"));
+    }
+
+    function syncToggleAllButton() {
+      const btn = document.getElementById("toggleAllDetailsBtn");
+      if (!btn) return;
+      const details = getDetailRows();
+      const allOpen = details.length > 0 && details.every(row => !row.classList.contains("hidden"));
+      btn.textContent = allOpen ? "收合全部" : "展開全部";
+      btn.setAttribute("aria-expanded", String(allOpen));
+    }
+
+    function initToggleAllDetails() {
+      const btn = document.getElementById("toggleAllDetailsBtn");
+      if (!btn || btn.dataset.bound === "true") {
+        syncToggleAllButton();
+        return;
+      }
+
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        const details = getDetailRows();
+        const mainRows = getMainRows();
+        const allOpen = details.length > 0 && details.every(row => !row.classList.contains("hidden"));
+        details.forEach(row => row.classList.toggle("hidden", allOpen));
+        mainRows.forEach(row => {
+          row.classList.toggle("is-expanded", !allOpen);
+          row.setAttribute("aria-expanded", String(!allOpen));
+        });
+        syncToggleAllButton();
+      });
+      syncToggleAllButton();
+    }
+
+    function renderDelegatedTable() {
+      const tasks = DELEGATED_TASKS.filter(isActiveDelegatedTask).sort(sortDelegated);
+      const rows = tasks.map(t => {
+        const checkDiff = daysDiff(t.check_date);
+        const needCheck = checkDiff !== null && checkDiff <= 0;
+        return `
+          <tr class="${needCheck ? "row-today" : ""}">
+            <td class="nowrap"><strong>${escapeHTML(displayId(t.task_id))}</strong></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td>${escapeHTML(t.assigned_to || "—")}</td>
+            <td>${chipForStatus(t.status)}</td>
+            <td class="nowrap">${escapeHTML(formatDate(t.deadline))}</td>
+            <td class="nowrap">${escapeHTML(formatDate(t.check_date))} ${needCheck ? `<span class="chip today">今天需要確認進度</span>` : ""}</td>
+            <td>${escapeHTML(t.note || "—")}</td>
+          </tr>
+        `;
+      });
+      document.getElementById("delegatedTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "交辦給誰", "狀態", "截止日期", "下次確認進度日期", "備註"],
+        rows,
+        "目前沒有未完成的交辦任務。"
+      );
+    }
+
+    function renderTaskCards() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortMyTasks);
+      if (!tasks.length) {
+        document.getElementById("taskCards").innerHTML = `<div class="empty-state">目前沒有任務明細卡。</div>`;
+        return;
+      }
+
+      document.getElementById("taskCards").innerHTML = tasks.map(t => {
+        const timeCls = taskTimeClass(t);
+        return `
+          <article class="task-card ${timeCls}">
+            <div class="task-card-head">
+              <div>
+                <div class="task-id">${escapeHTML(displayId(t.task_id))}</div>
+                <h3>${escapeHTML(t.title)}</h3>
+              </div>
+              ${chipForPriority(t.priority)}
+            </div>
+            <div class="status-pair">
+              ${taskStatusChip(t)}
+              ${scheduleStatusChip(t)}
+            </div>
+            <div class="meta-grid">
+              <div><span class="meta-label">截止日期</span>${deadlineCell(t)}</div>
+              <div><span class="meta-label">交辦人</span>${escapeHTML(t.assigned_by || "—")}</div>
+              <div><span class="meta-label">交給誰</span>${escapeHTML(t.deliver_to || "—")}</div>
+              <div><span class="meta-label">建立日期</span>${escapeHTML(formatDate(t.created_date))}</div>
+            </div>
+            ${t.note ? `<div class="note-box">${escapeHTML(t.note)}</div>` : ""}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderCompletedTable() {
+      const cutoff = new Date(TODAY.getTime() - 90 * MS_PER_DAY);
+
+      const myCompleted = MY_TASKS
+        .filter(t => isCompleted(t) && parseDate(t.completed_date) && parseDate(t.completed_date) >= cutoff)
+        .map(t => ({
+          type: "我的任務",
+          task_id: t.task_id,
+          title: t.title,
+          completed_date: t.completed_date,
+          person: t.deliver_to || "—"
+        }));
+
+      const delegatedCompleted = DELEGATED_TASKS
+        .filter(t => isCompleted(t) && parseDate(t.completed_date) && parseDate(t.completed_date) >= cutoff)
+        .map(t => ({
+          type: "交辦任務",
+          task_id: t.task_id,
+          title: t.title,
+          completed_date: t.completed_date,
+          person: t.assigned_to || "—"
+        }));
+
+      const rowsData = myCompleted.concat(delegatedCompleted).sort((a, b) => parseDate(b.completed_date) - parseDate(a.completed_date));
+      const rows = rowsData.map(t => `
+        <tr>
+          <td class="nowrap"><strong>${escapeHTML(displayId(t.task_id))}</strong></td>
+          <td>${escapeHTML(t.title)}</td>
+          <td class="nowrap">${escapeHTML(t.completed_date)}</td>
+          <td>${escapeHTML(t.person)}</td>
+          <td>${escapeHTML(t.type)}</td>
+        </tr>
+      `);
+
+      document.getElementById("completedTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "完成日期", "交給誰 / 交辦給誰", "類型"],
+        rows,
+        "近三個月內尚無已完成任務。"
+      );
+    }
+
+    function findMissingInfo() {
+      return MY_TASKS.filter(isActiveMyTask).map(t => {
+        const missing = [];
+        if (!String(t.deadline || "").trim()) missing.push("deadline");
+        if (!String(t.deliver_to || "").trim()) missing.push("deliver_to");
+        if (!String(t.assigned_by || "").trim()) missing.push("assigned_by");
+        return Object.assign({}, t, { missing: missing });
+      }).filter(t => t.missing.length > 0);
+    }
+
+    function renderMissingList() {
+      const missing = findMissingInfo();
+      if (!missing.length) {
+        document.getElementById("missingList").innerHTML = `<div class="empty-state">目前沒有資訊不足項目。</div>`;
+        return;
+      }
+
+      const labelMap = {
+        deadline: "截止日期 deadline",
+        deliver_to: "完成後交給誰 deliver_to",
+        assigned_by: "誰交辦給我 assigned_by"
+      };
+
+      document.getElementById("missingList").innerHTML = missing.map(t => `
+        <div class="missing-item">
+          <div class="missing-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</div>
+          <div class="missing-fields">缺少：${t.missing.map(m => `<strong>${labelMap[m]}</strong>`).join("、")}</div>
+          ${t.note ? `<div class="note-box">${escapeHTML(t.note)}</div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    function initSidebarCollapse() {
+      const btn = document.getElementById("collapseSidebarBtn");
+      const saved = localStorage.getItem("joanne_sidebar_collapsed") === "true";
+      document.body.classList.toggle("sidebar-collapsed", saved);
+
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("sidebar-collapsed");
+        localStorage.setItem("joanne_sidebar_collapsed", document.body.classList.contains("sidebar-collapsed") ? "true" : "false");
+      });
+    }
+
+    function renderAll() {
+      document.getElementById("lastUpdatedText").textContent = LAST_UPDATED;
+      renderSummary();
+      renderNav();
+      renderMyTasksTable();
+      renderPriorityList();
+      renderRadar();
+      renderDelegatedTable();
+      renderCompletedTable();
+      renderMissingList();
+      initSidebarCollapse();
+    }
+
+    function unlockDashboard() {
+      sessionStorage.setItem("joanne_dashboard_unlocked", "true");
+      document.getElementById("passwordGate").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      renderAll();
+    }
+
+    function initPasswordGate() {
+      renderSummary();
+
+      const isUnlocked = sessionStorage.getItem("joanne_dashboard_unlocked") === "true";
+      if (isUnlocked) {
+        unlockDashboard();
+        return;
+      }
+
+      const input = document.getElementById("passwordInput");
+      const btn = document.getElementById("passwordButton");
+      const error = document.getElementById("passwordError");
+
+      function checkPassword() {
+        if (input.value === DASHBOARD_PASSWORD) {
+          unlockDashboard();
+        } else {
+          error.textContent = "密碼錯誤，請再試一次。";
+          input.value = "";
+          input.focus();
+        }
+      }
+
+      btn.addEventListener("click", checkPassword);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") checkPassword();
+      });
+      input.focus();
+    }
+
+
+    /**************************************************************
+     * v6 overrides: single-page display mode, overview radar, delegated pages
+     **************************************************************/
+    function showPage(pageId, updateHash = true) {
+      const target = document.getElementById(pageId) ? pageId : "overview";
+      document.querySelectorAll(".page-section").forEach(section => {
+        section.classList.toggle("active-page", section.id === target);
+      });
+
+      document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.toggle("active", link.getAttribute("data-target") === target);
+      });
+
+      const select = document.getElementById("mobileNavSelect");
+      if (select) select.value = target;
+
+      if (updateHash) {
+        history.replaceState(null, "", `#${target}`);
+      }
+
+      const main = document.querySelector("main");
+      if (main) main.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("sidebarNav");
+      nav.innerHTML = NAV_GROUPS.map(group => `
+        <div class="nav-block">
+          <div class="nav-group-title">${escapeHTML(group.title)}</div>
+          ${group.items.map(([id, label]) => `<a class="nav-link" href="#${id}" data-target="${id}" title="${escapeHTML(label)}"><span class="nav-dot"></span><span class="nav-label">${escapeHTML(label)}</span></a>`).join("")}
+        </div>
+      `).join("");
+
+      nav.querySelectorAll(".nav-link").forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          showPage(link.getAttribute("data-target"));
+        });
+      });
+
+      const select = document.getElementById("mobileNavSelect");
+      select.innerHTML = NAV_GROUPS.map(group => `
+        <optgroup label="${escapeHTML(group.title)}">
+          ${group.items.map(([id, label]) => `<option value="${id}">${escapeHTML(label)}</option>`).join("")}
+        </optgroup>
+      `).join("");
+
+      select.addEventListener("change", e => {
+        showPage(e.target.value);
+      });
+
+      const initialPage = location.hash ? location.hash.replace("#", "") : "overview";
+      showPage(initialPage, false);
+    }
+
+    function renderSummary() {
+      const activeMy = MY_TASKS.filter(isActiveMyTask);
+      const activeDelegated = DELEGATED_TASKS.filter(isActiveDelegatedTask);
+
+      const incompleteCount = activeMy.length + activeDelegated.length;
+      const todayDueCount = activeMy.filter(t => daysDiff(t.deadline) === 0).length + activeDelegated.filter(t => daysDiff(t.deadline) === 0).length;
+      const overdueCount = activeMy.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      }).length + activeDelegated.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      }).length;
+
+      document.getElementById("loginMetricOpen").textContent = incompleteCount;
+      document.getElementById("loginMetricOverdue").textContent = overdueCount;
+      document.getElementById("loginMetricToday").textContent = todayDueCount;
+      renderOverviewRadar();
+    }
+
+    function currentWeekRange() {
+      const today = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+      const day = today.getDay() || 7;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - day + 1);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      return { monday, sunday };
+    }
+
+    function isDateInCurrentWeek(dateValue) {
+      const d = parseDate(dateValue);
+      if (!d) return false;
+      const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const { monday, sunday } = currentWeekRange();
+      return day >= monday && day <= sunday;
+    }
+
+    function renderOverviewRadar() {
+      const activeMy = MY_TASKS.filter(isActiveMyTask);
+      const activeDelegated = DELEGATED_TASKS.filter(isActiveDelegatedTask);
+      const activeAll = activeMy.concat(activeDelegated);
+
+      const overdue = activeAll.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff < 0;
+      });
+
+      const todayDue = activeAll.filter(t => daysDiff(t.deadline) === 0);
+
+      const next7 = activeAll.filter(t => {
+        const diff = daysDiff(t.deadline);
+        return diff !== null && diff >= 0 && diff <= 7;
+      });
+
+      const thisWeek = activeAll.filter(t => isDateInCurrentWeek(t.deadline));
+
+      const delegatedNeedCheck = activeDelegated.filter(t => {
+        const diff = daysDiff(t.check_date);
+        return diff !== null && diff <= 0;
+      });
+
+      const inaccurate = findMissingInfo().concat(findDelegatedMissingInfo());
+
+      const cards = [
+        ["已逾期", overdue, "danger"],
+        ["今日到期", todayDue, "warning"],
+        ["未來 7 天到期", next7, "blue"],
+        ["本週到期", thisWeek, "sage"],
+        ["今日需確認交辦", delegatedNeedCheck, "warning"],
+        ["資料不完整", inaccurate, "clay"]
+      ];
+
+      const target = document.getElementById("overviewRadarGrid");
+      if (!target) return;
+
+      target.innerHTML = cards.map(([label, items, cls]) => `
+        <div class="radar-card ${cls}">
+          <h3>${label}</h3>
+          <div class="radar-number">${items.length}</div>
+          ${items.length ? `<ol class="mini-list">${items.slice(0, 4).map(item => `<li>${escapeHTML(displayId(item.task_id))}｜${escapeHTML(item.title)}</li>`).join("")}</ol>` : `<div class="muted">目前沒有</div>`}
+        </div>
+      `).join("");
+    }
+
+    function scheduleStatusLabel(task) {
+      const cls = taskTimeClass(task);
+      if (cls === "overdue") return "已逾期";
+      if (cls === "today") return "今日到期";
+      return "未到期";
+    }
+
+    function scheduleStatusPill(task) {
+      const cls = taskTimeClass(task);
+      if (cls === "overdue") return `<span class="schedule-chip overdue">已逾期</span>`;
+      if (cls === "today") return `<span class="schedule-chip today">今日到期</span>`;
+      return `<span class="schedule-chip normal">未到期</span>`;
+    }
+
+    function textToBullets(text) {
+      return String(text || "")
+        .replace(/。/g, "。\\n")
+        .replace(/；/g, "；\\n")
+        .split("\\n")
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => line.replace(/^[-•]\\s*/, ""));
+    }
+
+    function splitTaskNote(note) {
+      const raw = String(note || "").trim();
+      if (!raw) {
+        return { content: ["尚未補充任務內容。"], remarks: [] };
+      }
+
+      const normalized = raw.replace(/\r/g, "");
+      const riskIndex = normalized.search(/風險[:：]/);
+      const remarkIndex = normalized.search(/備註[:：]/);
+      const splitIndexCandidates = [riskIndex, remarkIndex].filter(i => i >= 0);
+      const splitIndex = splitIndexCandidates.length ? Math.min(...splitIndexCandidates) : -1;
+
+      let contentText = normalized;
+      let remarkText = "";
+
+      if (splitIndex >= 0) {
+        contentText = normalized.slice(0, splitIndex).trim();
+        remarkText = normalized.slice(splitIndex).trim();
+      }
+
+      return {
+        content: textToBullets(contentText || normalized),
+        remarks: remarkText ? textToBullets(remarkText) : []
+      };
+    }
+
+    function renderInlineTaskDetail(task, mode = "my") {
+      const split = splitTaskNote(task.note);
+      const assignedLabel = mode === "delegated" ? "交辦給誰" : "交辦人";
+      const assignedValue = mode === "delegated" ? task.assigned_to : task.assigned_by;
+      const deliverLabel = mode === "delegated" ? "下次確認進度日期" : "完成後交給誰";
+      const deliverValue = mode === "delegated" ? task.check_date : task.deliver_to;
+
+      return `
+        <div class="inline-detail">
+          <div class="inline-detail-grid three">
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${assignedLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(assignedValue || "—")}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">交辦日期</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(task.created_date))}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${deliverLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(deliverValue))}</span>
+            </div>
+          </div>
+          <div class="inline-detail-two-col">
+            <div class="inline-detail-section">
+              <h4>任務內容</h4>
+              <ul class="task-bullets">
+                ${split.content.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+              </ul>
+            </div>
+            <div class="inline-detail-section">
+              <h4>備註說明</h4>
+              ${split.remarks.length
+                ? `<ul class="task-bullets">${split.remarks.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`
+                : `<div class="empty-mark">—</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMyTasksTable() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortMyTasks);
+      const rows = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        const rowId = `detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        return `
+          <tr class="task-main-row ${cls === "overdue" ? "row-overdue" : cls === "today" ? "row-today" : ""}" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${deadlineCell(t)}</td>
+            <td class="nowrap">${scheduleStatusPill(t)}</td>
+            <td class="nowrap">${chipForPriority(t.priority)}</td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row hidden">
+            <td colspan="5" class="expand-cell">
+              ${renderInlineTaskDetail(t, "my")}
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("myTasksTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "目前時程狀態", "優先度"],
+        rows,
+        "目前沒有未完成的我的任務。",
+        "worklist-table"
+      );
+
+      bindExpandableRows();
+      initToggleAllDetails();
+    }
+
+    function bindExpandableRows() {
+      document.querySelectorAll(".task-main-row").forEach(row => {
+        if (row.dataset.bound === "true") return;
+        row.dataset.bound = "true";
+        const toggle = () => {
+          const detailId = row.getAttribute("data-detail-id");
+          const detail = document.getElementById(detailId);
+          if (!detail) return;
+          const isOpen = !detail.classList.contains("hidden");
+          detail.classList.toggle("hidden", isOpen);
+          row.classList.toggle("is-expanded", !isOpen);
+          row.setAttribute("aria-expanded", String(!isOpen));
+          syncToggleAllButton();
+        };
+        row.addEventListener("click", toggle);
+        row.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+      });
+    }
+
+    function renderDelegatedTable() {
+      const tasks = DELEGATED_TASKS.filter(isActiveDelegatedTask).sort(sortDelegated);
+      const rows = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        const checkDiff = daysDiff(t.check_date);
+        const needCheck = checkDiff !== null && checkDiff <= 0;
+        const rowId = `delegated-detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        return `
+          <tr class="task-main-row ${needCheck ? "row-today" : cls === "overdue" ? "row-overdue" : ""}" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${escapeHTML(formatDate(t.deadline))}</td>
+            <td class="nowrap">${escapeHTML(formatDate(t.check_date))}${needCheck ? ` <span class="chip today">需確認</span>` : ""}</td>
+            <td class="nowrap">${scheduleStatusPill(t)}</td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row hidden">
+            <td colspan="5" class="expand-cell">
+              ${renderInlineTaskDetail(t, "delegated")}
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("delegatedTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "下次確認日", "目前時程狀態"],
+        rows,
+        "目前沒有未完成的交辦任務。",
+        "worklist-table delegated-table"
+      );
+
+      bindExpandableRows();
+    }
+
+    function renderDelegatedPriorityList() {
+      const tasks = DELEGATED_TASKS.filter(isActiveDelegatedTask).sort((a, b) => {
+        const aCheck = daysDiff(a.check_date);
+        const bCheck = daysDiff(b.check_date);
+        const aNeed = aCheck !== null && aCheck <= 0 ? 1 : 0;
+        const bNeed = bCheck !== null && bCheck <= 0 ? 1 : 0;
+        if (aNeed !== bNeed) return bNeed - aNeed;
+        return sortDelegated(a, b);
+      }).slice(0, 5);
+
+      if (!tasks.length) {
+        document.getElementById("delegatedPriorityList").innerHTML = `<div class="empty-state">目前沒有需要優先追蹤的交辦任務。</div>`;
+        return;
+      }
+
+      document.getElementById("delegatedPriorityList").innerHTML = tasks.map(t => {
+        const checkDiff = daysDiff(t.check_date);
+        const needCheck = checkDiff !== null && checkDiff <= 0;
+        const reason = needCheck
+          ? "下次確認日期已到或已過，今天需要追蹤進度。"
+          : `下次確認日期：${formatDate(t.check_date)}。`;
+        return `
+          <div class="priority-item ${needCheck ? "is-today" : ""}">
+            <div>
+              <p class="priority-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</p>
+              <p class="priority-reason">${escapeHTML(reason)}</p>
+              <p class="priority-reason">交辦給：${escapeHTML(t.assigned_to || "—")}　Deadline：${escapeHTML(formatDate(t.deadline))}</p>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function findDelegatedMissingInfo() {
+      return DELEGATED_TASKS.filter(isActiveDelegatedTask).map(t => {
+        const missing = [];
+        if (!String(t.assigned_to || "").trim()) missing.push("assigned_to");
+        if (!String(t.deadline || "").trim()) missing.push("deadline");
+        if (!String(t.check_date || "").trim()) missing.push("check_date");
+        return Object.assign({}, t, { missing: missing });
+      }).filter(t => t.missing.length > 0);
+    }
+
+    function renderDelegatedMissingList() {
+      const missing = findDelegatedMissingInfo();
+      if (!missing.length) {
+        document.getElementById("delegatedMissingList").innerHTML = `<div class="empty-state">目前沒有交辦任務的資訊不足項目。</div>`;
+        return;
+      }
+
+      const labelMap = {
+        assigned_to: "交辦給誰 assigned_to",
+        deadline: "截止日期 deadline",
+        check_date: "下次確認進度日期 check_date"
+      };
+
+      document.getElementById("delegatedMissingList").innerHTML = missing.map(t => `
+        <div class="missing-item">
+          <div class="missing-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</div>
+          <div class="missing-fields">缺少：${t.missing.map(m => `<strong>${labelMap[m]}</strong>`).join("、")}</div>
+          ${t.note ? `<div class="note-box">${escapeHTML(t.note)}</div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    function renderCompletedTable() {
+      const cutoff = new Date(TODAY.getTime() - 90 * MS_PER_DAY);
+
+      const myCompleted = MY_TASKS
+        .filter(t => isCompleted(t) && parseDate(t.completed_date) && parseDate(t.completed_date) >= cutoff)
+        .map(t => Object.assign({}, t, { completed_type: "my" }));
+
+      const delegatedCompleted = DELEGATED_TASKS
+        .filter(t => isCompleted(t) && parseDate(t.completed_date) && parseDate(t.completed_date) >= cutoff)
+        .map(t => Object.assign({}, t, { completed_type: "delegated" }));
+
+      const rowsData = myCompleted.concat(delegatedCompleted).sort((a, b) => parseDate(b.completed_date) - parseDate(a.completed_date));
+
+      const rows = rowsData.map(t => {
+        const rowId = `completed-detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        const mode = t.completed_type === "delegated" ? "delegated" : "my";
+        return `
+          <tr class="task-main-row" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${escapeHTML(formatDate(t.deadline))}</td>
+            <td class="nowrap"><span class="date-muted">${escapeHTML(formatDate(t.completed_date))}</span></td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row completed-detail-row hidden">
+            <td colspan="4" class="expand-cell">
+              ${renderInlineTaskDetail(t, mode)}
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("completedTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "完成時間"],
+        rows,
+        "近三個月內尚無已完成任務。",
+        "worklist-table completed-table"
+      );
+
+      bindExpandableRows();
+    }
+
+    function renderAll() {
+      document.getElementById("lastUpdatedText").textContent = LAST_UPDATED;
+      renderSummary();
+      renderNav();
+      renderMyTasksTable();
+      renderPriorityList();
+      renderDelegatedPriorityList();
+      renderOverviewRadar();
+      renderDelegatedTable();
+      renderCompletedTable();
+      renderMissingList();
+      renderDelegatedMissingList();
+      initSidebarCollapse();
+    }
+
+
+    /**************************************************************
+     * v7 overrides: overview actions + scoped expand/collapse buttons
+     **************************************************************/
+    function showPage(pageId, updateHash = true) {
+      const target = document.getElementById(pageId) ? pageId : "overview";
+      document.querySelectorAll(".page-section").forEach(section => {
+        section.classList.toggle("active-page", section.id === target);
+      });
+
+      document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.toggle("active", link.getAttribute("data-target") === target);
+      });
+
+      const select = document.getElementById("mobileNavSelect");
+      if (select) select.value = target;
+
+      if (updateHash) {
+        history.replaceState(null, "", `#${target}`);
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function radarCategoryItems(category, source) {
+      const my = MY_TASKS.filter(isActiveMyTask);
+      const delegated = DELEGATED_TASKS.filter(isActiveDelegatedTask);
+      const items = source === "delegated" ? delegated : my;
+
+      if (category === "overdue") {
+        return items.filter(t => {
+          const diff = daysDiff(t.deadline);
+          return diff !== null && diff < 0;
+        });
+      }
+
+      if (category === "today") {
+        return items.filter(t => daysDiff(t.deadline) === 0);
+      }
+
+      if (category === "next7") {
+        return items.filter(t => {
+          const diff = daysDiff(t.deadline);
+          return diff !== null && diff >= 0 && diff <= 7;
+        });
+      }
+
+      if (category === "thisWeek") {
+        return items.filter(t => isDateInCurrentWeek(t.deadline));
+      }
+
+      if (category === "needCheck") {
+        return source === "delegated"
+          ? delegated.filter(t => {
+              const diff = daysDiff(t.check_date);
+              return diff !== null && diff <= 0;
+            })
+          : [];
+      }
+
+      if (category === "missing") {
+        return source === "delegated" ? findDelegatedMissingInfo() : findMissingInfo();
+      }
+
+      return [];
+    }
+
+    function navigateFromRadar(category, source) {
+      const pageId = source === "delegated" ? "delegated" : "my-tasks";
+      const items = radarCategoryItems(category, source);
+      showPage(pageId);
+
+      requestAnimationFrame(() => {
+        collapseAllDetailsFor(pageId);
+        const ids = items.map(item => String(item.task_id));
+        expandRowsByIds(pageId, ids);
+      });
+    }
+
+    function expandRowsByIds(pageId, taskIds) {
+      const section = document.getElementById(pageId);
+      if (!section || !taskIds.length) return;
+
+      const wanted = new Set(taskIds.map(String));
+      section.querySelectorAll(".task-main-row").forEach(row => {
+        const taskId = row.getAttribute("data-task-id");
+        const detailId = row.getAttribute("data-detail-id");
+        const detail = document.getElementById(detailId);
+        if (!detail) return;
+
+        const shouldOpen = wanted.has(String(taskId));
+        if (shouldOpen) {
+          detail.classList.remove("hidden");
+          row.classList.add("is-expanded", "focused-from-overview");
+          row.setAttribute("aria-expanded", "true");
+        }
+      });
+
+      const first = section.querySelector(".task-main-row.focused-from-overview");
+      if (first) {
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => {
+          section.querySelectorAll(".focused-from-overview").forEach(row => row.classList.remove("focused-from-overview"));
+        }, 1800);
+      }
+
+      syncDetailButtonsFor(pageId);
+    }
+
+    function renderOverviewRadar() {
+      const cards = [
+        ["已逾期", "overdue", "danger"],
+        ["今日到期", "today", "warning"],
+        ["未來 7 天到期", "next7", "blue"],
+        ["本週到期", "thisWeek", "sage"],
+        ["今日需確認交辦", "needCheck", "warning"],
+        ["資料不完整", "missing", "clay"]
+      ];
+
+      const target = document.getElementById("overviewRadarGrid");
+      if (!target) return;
+
+      target.innerHTML = cards.map(([label, key, cls]) => {
+        const myItems = radarCategoryItems(key, "my");
+        const delegatedItems = radarCategoryItems(key, "delegated");
+        const allItems = myItems.concat(delegatedItems);
+
+        return `
+          <div class="radar-card ${cls}">
+            <h3>${label}</h3>
+            <div class="radar-number">${allItems.length}</div>
+            ${allItems.length ? `<ol class="mini-list">${allItems.slice(0, 4).map(item => `<li>${escapeHTML(displayId(item.task_id))}｜${escapeHTML(item.title)}</li>`).join("")}</ol>` : `<div class="muted">目前沒有</div>`}
+            <div class="radar-actions">
+              <button class="radar-action mine" type="button" title="查看我被交辦的相關任務" ${myItems.length ? "" : "disabled"} onclick="navigateFromRadar('${key}', 'my')">
+                <span class="action-dot">受</span>${myItems.length}
+              </button>
+              <button class="radar-action delegated" type="button" title="查看我交辦的相關任務" ${delegatedItems.length ? "" : "disabled"} onclick="navigateFromRadar('${key}', 'delegated')">
+                <span class="action-dot">派</span>${delegatedItems.length}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function bindExpandableRows() {
+      document.querySelectorAll(".task-main-row").forEach(row => {
+        if (row.dataset.bound === "true") return;
+        row.dataset.bound = "true";
+        const toggle = () => {
+          const detailId = row.getAttribute("data-detail-id");
+          const detail = document.getElementById(detailId);
+          if (!detail) return;
+          const isOpen = !detail.classList.contains("hidden");
+          detail.classList.toggle("hidden", isOpen);
+          row.classList.toggle("is-expanded", !isOpen);
+          row.setAttribute("aria-expanded", String(!isOpen));
+          const section = row.closest(".page-section");
+          if (section) syncDetailButtonsFor(section.id);
+        };
+        row.addEventListener("click", toggle);
+        row.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+      });
+    }
+
+    function detailControlsFor(pageId) {
+      if (pageId === "delegated") {
+        return {
+          section: document.getElementById("delegated"),
+          expand: document.getElementById("delegatedExpandAllDetailsBtn"),
+          collapse: document.getElementById("delegatedCollapseAllDetailsBtn")
+        };
+      }
+
+      return {
+        section: document.getElementById("my-tasks"),
+        expand: document.getElementById("expandAllDetailsBtn"),
+        collapse: document.getElementById("collapseAllDetailsBtn")
+      };
+    }
+
+    function getDetailRowsFor(pageId) {
+      const controls = detailControlsFor(pageId);
+      if (!controls.section) return [];
+      return Array.prototype.slice.call(controls.section.querySelectorAll(".task-detail-row"));
+    }
+
+    function getMainRowsFor(pageId) {
+      const controls = detailControlsFor(pageId);
+      if (!controls.section) return [];
+      return Array.prototype.slice.call(controls.section.querySelectorAll(".task-main-row"));
+    }
+
+    function syncDetailButtonsFor(pageId) {
+      const { expand, collapse } = detailControlsFor(pageId);
+      if (!expand || !collapse) return;
+
+      const details = getDetailRowsFor(pageId);
+      const anyOpen = details.some(row => !row.classList.contains("hidden"));
+      const allOpen = details.length > 0 && details.every(row => !row.classList.contains("hidden"));
+
+      collapse.classList.toggle("visible", anyOpen);
+      collapse.disabled = !anyOpen;
+      expand.disabled = allOpen;
+    }
+
+    function expandAllDetailsFor(pageId) {
+      getDetailRowsFor(pageId).forEach(row => row.classList.remove("hidden"));
+      getMainRowsFor(pageId).forEach(row => {
+        row.classList.add("is-expanded");
+        row.setAttribute("aria-expanded", "true");
+      });
+      syncDetailButtonsFor(pageId);
+    }
+
+    function collapseAllDetailsFor(pageId) {
+      getDetailRowsFor(pageId).forEach(row => row.classList.add("hidden"));
+      getMainRowsFor(pageId).forEach(row => {
+        row.classList.remove("is-expanded", "focused-from-overview");
+        row.setAttribute("aria-expanded", "false");
+      });
+      syncDetailButtonsFor(pageId);
+    }
+
+    function initDetailButtonsFor(pageId) {
+      const { expand, collapse } = detailControlsFor(pageId);
+      if (!expand || !collapse || expand.dataset.bound === "true") {
+        syncDetailButtonsFor(pageId);
+        return;
+      }
+
+      expand.dataset.bound = "true";
+      collapse.dataset.bound = "true";
+
+      expand.addEventListener("click", () => expandAllDetailsFor(pageId));
+      collapse.addEventListener("click", () => collapseAllDetailsFor(pageId));
+
+      syncDetailButtonsFor(pageId);
+    }
+
+    function initToggleAllDetails() {
+      initDetailButtonsFor("my-tasks");
+    }
+
+    function renderMyTasksTable() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortMyTasks);
+      const rows = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        const rowId = `detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        return `
+          <tr class="task-main-row ${cls === "overdue" ? "row-overdue" : cls === "today" ? "row-today" : ""}" data-task-id="${escapeHTML(String(t.task_id))}" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${deadlineCell(t)}</td>
+            <td class="nowrap">${scheduleStatusPill(t)}</td>
+            <td class="nowrap">${chipForPriority(t.priority)}</td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row hidden">
+            <td colspan="5" class="expand-cell">
+              ${renderInlineTaskDetail(t, "my")}
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("myTasksTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "目前時程狀態", "優先度"],
+        rows,
+        "目前沒有未完成的我的任務。",
+        "worklist-table"
+      );
+
+      bindExpandableRows();
+      initDetailButtonsFor("my-tasks");
+    }
+
+    function renderDelegatedTable() {
+      const tasks = DELEGATED_TASKS.filter(isActiveDelegatedTask).sort(sortDelegated);
+      const rows = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        const checkDiff = daysDiff(t.check_date);
+        const needCheck = checkDiff !== null && checkDiff <= 0;
+        const rowId = `delegated-detail-${escapeHTML(String(t.task_id).replace(/[^a-zA-Z0-9_-]/g, ""))}`;
+        return `
+          <tr class="task-main-row ${needCheck ? "row-today" : cls === "overdue" ? "row-overdue" : ""}" data-task-id="${escapeHTML(String(t.task_id))}" data-detail-id="${rowId}" tabindex="0" aria-expanded="false">
+            <td class="nowrap"><span class="row-caret">›</span><span class="task-no">${escapeHTML(displayId(t.task_id))}</span></td>
+            <td><div class="task-title">${escapeHTML(t.title)}</div></td>
+            <td class="nowrap">${escapeHTML(formatDate(t.deadline))}</td>
+            <td class="nowrap">${escapeHTML(formatDate(t.check_date))}${needCheck ? ` <span class="chip today">需確認</span>` : ""}</td>
+            <td class="nowrap">${scheduleStatusPill(t)}</td>
+          </tr>
+          <tr id="${rowId}" class="task-detail-row hidden">
+            <td colspan="5" class="expand-cell">
+              ${renderInlineTaskDetail(t, "delegated")}
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("delegatedTable").innerHTML = tableOrEmpty(
+        ["編號", "任務名稱", "截止日", "下次確認日", "目前時程狀態"],
+        rows,
+        "目前沒有未完成的交辦任務。",
+        "worklist-table delegated-table"
+      );
+
+      bindExpandableRows();
+      initDetailButtonsFor("delegated");
+    }
+
+
+    /**************************************************************
+     * v8 override: inline detail order and final render hooks
+     **************************************************************/
+    function renderInlineTaskDetail(task, mode = "my") {
+      const split = splitTaskNote(task.note);
+      const assignedLabel = mode === "delegated" ? "交辦給誰" : "交辦人";
+      const assignedValue = mode === "delegated" ? task.assigned_to : task.assigned_by;
+      const deliverLabel = mode === "delegated" ? "下次確認進度日期" : "完成後交給誰";
+      const deliverValue = mode === "delegated" ? task.check_date : task.deliver_to;
+
+      return `
+        <div class="inline-detail">
+          <div class="inline-detail-grid three">
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">交辦日期</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(task.created_date))}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${assignedLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(assignedValue || "—")}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${deliverLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(deliverValue))}</span>
+            </div>
+          </div>
+          <div class="inline-detail-two-col">
+            <div class="inline-detail-section">
+              <h4>任務內容</h4>
+              <ul class="task-bullets">
+                ${split.content.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+              </ul>
+            </div>
+            <div class="inline-detail-section">
+              <h4>備註說明</h4>
+              ${split.remarks.length
+                ? `<ul class="task-bullets">${split.remarks.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`
+                : `<div class="empty-mark">—</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+
+    /**************************************************************
+     * v9 fix: dynamically size table scroll areas after page changes
+     **************************************************************/
+    function applyWorklistScrollLayout() {
+      if (window.matchMedia("(max-width: 820px)").matches) return;
+
+      document.querySelectorAll("#myTasksTable .table-scroll-area, #delegatedTable .table-scroll-area, #completedTable .table-scroll-area").forEach(area => {
+        const section = area.closest(".page-section");
+        if (!section || !section.classList.contains("active-page")) return;
+
+        const rect = area.getBoundingClientRect();
+        const bottomGap = 32;
+        const available = Math.max(260, window.innerHeight - rect.top - bottomGap);
+        area.style.height = `${available}px`;
+        area.style.maxHeight = `${available}px`;
+        area.style.overflowY = "auto";
+        area.style.overflowX = "auto";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(applyWorklistScrollLayout, 80);
+      setTimeout(applyWorklistScrollLayout, 300);
+
+      document.addEventListener("click", () => {
+        setTimeout(applyWorklistScrollLayout, 30);
+        setTimeout(applyWorklistScrollLayout, 180);
+      }, true);
+
+      window.addEventListener("resize", () => {
+        setTimeout(applyWorklistScrollLayout, 60);
+      });
+    });
+
+
+    /**************************************************************
+     * v11 fixed override: centered details + content / progress / remarks
+     **************************************************************/
+    function progressToBullets(task) {
+      const raw = String(task.progress_update || "").trim();
+      return raw ? textToBullets(raw) : [];
+    }
+
+    function renderInlineTaskDetail(task, mode = "my") {
+      const split = splitTaskNote(task.note);
+      const progress = progressToBullets(task);
+      const assignedLabel = mode === "delegated" ? "交辦給誰" : "交辦人";
+      const assignedValue = mode === "delegated" ? task.assigned_to : task.assigned_by;
+      const deliverLabel = mode === "delegated" ? "下次確認進度日期" : "完成後交給誰";
+      const deliverValue = mode === "delegated" ? task.check_date : task.deliver_to;
+
+      return `
+        <div class="inline-detail">
+          <div class="inline-detail-grid three">
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">交辦日期</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(task.created_date))}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${assignedLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(assignedValue || "—")}</span>
+            </div>
+            <div class="inline-detail-box">
+              <span class="inline-detail-label">${deliverLabel}</span>
+              <span class="inline-detail-value">${escapeHTML(formatDate(deliverValue))}</span>
+            </div>
+          </div>
+          <div class="inline-detail-three-col">
+            <div class="inline-detail-section">
+              <h4>任務內容</h4>
+              <ul class="task-bullets">
+                ${split.content.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+              </ul>
+            </div>
+            <div class="inline-detail-section">
+              <h4>進度更新</h4>
+              ${progress.length
+                ? `<ul class="task-bullets">${progress.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`
+                : `<div class="empty-mark">—</div>`
+              }
+            </div>
+            <div class="inline-detail-section">
+              <h4>備註說明</h4>
+              ${split.remarks.length
+                ? `<ul class="task-bullets">${split.remarks.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`
+                : `<div class="empty-mark">—</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+
+    /**************************************************************
+     * v14 override: sort worklists by task number/code order
+     **************************************************************/
+    function taskNumberValue(task) {
+      const raw = String(task.task_id || "");
+      const match = raw.match(/\d+/);
+      const digits = match ? match[0] : null;
+      return digits ? Number(digits) : Number.MAX_SAFE_INTEGER;
+    }
+
+    function sortMyTasks(a, b) {
+      return taskNumberValue(a) - taskNumberValue(b)
+        || String(a.task_id).localeCompare(String(b.task_id));
+    }
+
+    function sortDelegated(a, b) {
+      return taskNumberValue(a) - taskNumberValue(b)
+        || String(a.task_id).localeCompare(String(b.task_id));
+    }
+
+
+    /**************************************************************
+     * v15 override: sidebar always starts expanded on page load
+     **************************************************************/
+    function initSidebarCollapse() {
+      const btn = document.getElementById("collapseSidebarBtn");
+      document.body.classList.remove("sidebar-collapsed");
+      try {
+        localStorage.setItem("joanne_sidebar_collapsed", "false");
+      } catch (error) {}
+
+      if (!btn || btn.dataset.bound === "true") return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("sidebar-collapsed");
+      });
+    }
+
+
+    /**************************************************************
+     * v24: expandable highest-priority cards showing task content only
+     **************************************************************/
+    function priorityContentBullets(task) {
+      const split = splitTaskNote(task.note);
+      return split.content && split.content.length ? split.content : ["尚未補充任務內容。"];
+    }
+
+    function renderPriorityContentDetail(task) {
+      const bullets = priorityContentBullets(task);
+      return `
+        <div class="priority-content-detail">
+          <p class="priority-content-title">任務內容</p>
+          <ul class="priority-content-list">
+            ${bullets.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    }
+
+    function bindPriorityExpandable(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll(".priority-expandable").forEach(item => {
+        if (item.dataset.bound === "true") return;
+        item.dataset.bound = "true";
+        item.addEventListener("click", () => {
+          item.classList.toggle("is-open");
+        });
+        item.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            item.classList.toggle("is-open");
+          }
+        });
+      });
+    }
+
+    function renderPriorityList() {
+      const tasks = MY_TASKS.filter(isActiveMyTask).sort(sortPriority).slice(0, 5);
+      if (!tasks.length) {
+        document.getElementById("priorityList").innerHTML = `<div class="empty-state">目前沒有需要優先處理的未完成任務。</div>`;
+        return;
+      }
+
+      document.getElementById("priorityList").innerHTML = tasks.map(t => {
+        const cls = taskTimeClass(t);
+        return `
+          <div class="priority-item priority-expandable ${cls === "overdue" ? "is-overdue" : cls === "today" ? "is-today" : ""}" tabindex="0" aria-label="展開 ${escapeHTML(t.title)} 的任務內容">
+            <div>
+              <p class="priority-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</p>
+              <p class="priority-reason">${escapeHTML(getUrgencyReason(t))}</p>
+              <p class="priority-reason">Deadline：${escapeHTML(formatDate(t.deadline))}　優先級：${escapeHTML(t.priority)}　交付對象：${escapeHTML(t.deliver_to || "—")}</p>
+            </div>
+            ${renderPriorityContentDetail(t)}
+          </div>
+        `;
+      }).join("");
+      bindPriorityExpandable("priorityList");
+    }
+
+    function renderDelegatedPriorityList() {
+      const tasks = DELEGATED_TASKS.filter(isActiveDelegatedTask).sort((a, b) => {
+        const aCheck = daysDiff(a.check_date);
+        const bCheck = daysDiff(b.check_date);
+        const aNeed = aCheck !== null && aCheck <= 0 ? 1 : 0;
+        const bNeed = bCheck !== null && bCheck <= 0 ? 1 : 0;
+        if (aNeed !== bNeed) return bNeed - aNeed;
+        return sortDelegated(a, b);
+      }).slice(0, 5);
+
+      if (!tasks.length) {
+        document.getElementById("delegatedPriorityList").innerHTML = `<div class="empty-state">目前沒有需要優先追蹤的交辦任務。</div>`;
+        return;
+      }
+
+      document.getElementById("delegatedPriorityList").innerHTML = tasks.map(t => {
+        const checkDiff = daysDiff(t.check_date);
+        const needCheck = checkDiff !== null && checkDiff <= 0;
+        const reason = needCheck
+          ? "下次確認日期已到或已過，今天需要追蹤進度。"
+          : `下次確認日期：${formatDate(t.check_date)}。`;
+        return `
+          <div class="priority-item priority-expandable ${needCheck ? "is-today" : ""}" tabindex="0" aria-label="展開 ${escapeHTML(t.title)} 的任務內容">
+            <div>
+              <p class="priority-title">${escapeHTML(displayId(t.task_id))}｜${escapeHTML(t.title)}</p>
+              <p class="priority-reason">${escapeHTML(reason)}</p>
+              <p class="priority-reason">交辦給：${escapeHTML(t.assigned_to || "—")}　Deadline：${escapeHTML(formatDate(t.deadline))}</p>
+            </div>
+            ${renderPriorityContentDetail(t)}
+          </div>
+        `;
+      }).join("");
+      bindPriorityExpandable("delegatedPriorityList");
+    }
+
+
+    /**************************************************************
+     * v26 mobile-safe login: no crash when sessionStorage is restricted
+     **************************************************************/
+    function safeSessionGet(key) {
+      try {
+        return window.sessionStorage ? sessionStorage.getItem(key) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function safeSessionSet(key, value) {
+      try {
+        if (window.sessionStorage) sessionStorage.setItem(key, value);
+      } catch (error) {}
+    }
+
+    function unlockDashboard() {
+      safeSessionSet("joanne_dashboard_unlocked", "true");
+      var gate = document.getElementById("passwordGate");
+      var app = document.getElementById("app");
+      if (gate) gate.classList.add("hidden");
+      if (app) app.classList.remove("hidden");
+      renderAll();
+    }
+
+    function initPasswordGate() {
+      renderSummary();
+
+      var isUnlocked = safeSessionGet("joanne_dashboard_unlocked") === "true";
+      if (isUnlocked) {
+        unlockDashboard();
+        return;
+      }
+
+      var input = document.getElementById("passwordInput");
+      var btn = document.getElementById("passwordButton");
+      var error = document.getElementById("passwordError");
+
+      if (!input || !btn) return;
+
+      function checkPassword() {
+        var typed = String(input.value || "").trim();
+        if (typed === DASHBOARD_PASSWORD) {
+          unlockDashboard();
+        } else {
+          if (error) error.textContent = "密碼錯誤，請再試一次。";
+          input.value = "";
+          try { input.focus(); } catch (e) {}
+        }
+      }
+
+      btn.addEventListener("click", checkPassword);
+      btn.addEventListener("touchend", function(event) {
+        event.preventDefault();
+        checkPassword();
+      }, false);
+
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.keyCode === 13) checkPassword();
+      });
+
+      try { input.focus(); } catch (e) {}
+    }
+
+    document.addEventListener("DOMContentLoaded", initPasswordGate);
+  </script>
+
+<script>
+(function () {
+  var DASHBOARD_PASSWORD_SAFE = "123456";
+  var LAST_UPDATED_SAFE = "2026-06-14 12:00";
+  var MY_TASKS_SAFE = [
+      {
+        task_id: "T001",
+        title: "整理 6/9、6/10 各窗口同步會議紀錄",
+        status: "完成",
+        priority: "高",
+        deadline: "2026-06-11",
+        assigned_by: "會議 / 我自己新增",
+        deliver_to: "台中辦公室企劃",
+        note: "將 6/9、6/10 各窗口同步內容整理成會議紀錄，提供給台中辦公室企劃。風險：已超過原定交付日，若尚未完成，會影響台中企劃掌握同步內容。",
+        completed_date: "2026-06-14",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T002",
+        title: "整理 LAKI 合規站五大面向交接資料與建立共用雲端硬碟",
+        status: "進行中",
+        priority: "高",
+        deadline: "2026-06-16",
+        assigned_by: "LAKI 合規站交接 / 我自己新增",
+        deliver_to: "",
+        note: "五大面向包含：財務、研發、營運、客服、行銷。下一步：建立 Google 共用雲端硬碟，將原站方陸續提供的資料放入雲端，並更新資料繳交狀態。風險：原站方資料仍在陸續回覆中；若資料未齊，交接整理會被卡住。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T003",
+        title: "規劃台中辦公室與菲律賓辦公室開發進度同步 SOP",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-22",
+        assigned_by: "PM 職責 / 我自己新增",
+        deliver_to: "",
+        note: "擬定兩地辦公室同步開發進度的流程、節奏、會議機制、資訊格式與責任分工。背景：LAKI 合規站接手後需要整站翻新，PM 需要掌握台中研發與菲律賓辦公室的同步機制。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T004",
+        title: "研究四大合規站競品功能、玩法與營運模式",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-14",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "研究重點包含：站內功能、怎麼玩、產品核心、與市場最大區隔、如何經營合規站。風險：四個站研究範圍大，若未定義研究模板，容易失焦或產出不一致。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T005",
+        title: "完成四大合規站與金流渠道的 KYC",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "包含站方 KYC、金流渠道 KYC。下一步：逐一完成四大合規站與金流渠道 KYC，並保存通過紀錄與錄影。風險：尚未提供 Deadline；KYC 可能受審核時間影響，存在外部等待風險。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T006",
+        title: "整理台中辦公室企劃缺失資料，向相關窗口詢問並提供",
+        status: "待辦",
+        priority: "高",
+        deadline: "2026-06-17",
+        assigned_by: "台中辦公室企劃需求 / 會議中指派",
+        deliver_to: "台中辦公室企劃",
+        note: "待確認事項清單：\n1. 登入 QR code 是什麼機制、幹嘛用｜Nara → Freak｜6/10\n2. KYC 必填欄位的 PACO 法規下限，本國人 vs 外國護照｜Nara → 法務 / PACO 法規｜6/10\n3. KYC 審核規則、廠商判斷機制，疑慮列清單給 Nara 去問｜Nara → KYC 廠商，未來預計換 Sumsub｜6/10\n4. 合規站關閉系統是否需送審、提前公告多久｜Nara → 法務｜6/10\n5. PACO 是否透過後台看數據，看 PACO 群組勾選｜Nara 查後台；沒勾則找佳倫｜6/10\n6. 優惠券代碼的用途與發送方式，附截圖給 Nara｜Nara 去問｜6/10\n7. OKBet 明面招募 agent 為何合法｜Nara → 阿智 / Anton｜6/11\n8. 玩家標籤（分群）的數據組規劃｜直接找佳倫｜6/11\n9. 客服常見問題集｜保羅赴菲後整理，原始資料可先丟過來｜6/11\n10. Lucky Point 是否保留｜討論循環時決定｜6/10",
+        progress_update: "已整理好資料，預計 2026-06-15 提供給原站長團隊，請他們協助回覆相關資訊。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T007",
+        title: "記錄配合博彩局稽核之完整 KYC 開啟流程",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "合規 / 稽核需求",
+        deliver_to: "",
+        note: "目前相關群組為 Lucky RAC 與 RAC PAGCOR 兩個 Telegram 群。主要處理法規相關、博彩局 / PAGCOR 稽核相關流程；工作上需要將這些流程完整記錄下來，並整理成流程圖。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      },
+      {
+        task_id: "T008",
+        title: "整理現有站方營運各面向 SOP",
+        status: "待辦",
+        priority: "中",
+        deadline: "",
+        assigned_by: "我自己新增",
+        deliver_to: "",
+        note: "整理現有站方各面向 SOP，包含客服客訴、機台問題、財務流程、定期繳交資料等。目標是形成一份完整營運 SOP 文件。風險：範圍很大，建議拆成部門 / 情境型 SOP 子任務，避免整理失控。",
+        completed_date: "",
+        created_date: "2026-06-11"
+      }
+    ];
+  var DELEGATED_TASKS_SAFE = [
+      /*
+      {
+        task_id: "D001",
+        title: "任務名稱",
+        assigned_to: "小明",
+        status: "進行中",
+        deadline: "2026-06-20",
+        check_date: "2026-06-17",
+        note: "",
+        completed_date: "",
+        created_date: "2026-06-13"
+      }
+      */
+    ];
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function parseDateSafe(value) {
+    if (!value) return null;
+    var raw = String(value).trim();
+    if (!raw || raw === "—") return null;
+    var normalized = raw.replace(/\//g, "-");
+    var parts = normalized.split("-");
+    if (parts.length < 3) return null;
+    var y = Number(parts[0]);
+    var m = Number(parts[1]) - 1;
+    var d = Number(parts[2]);
+    if (!y || isNaN(m) || !d) return null;
+    return new Date(y, m, d);
+  }
+
+  function todaySafe() {
+    return new Date(2026, 5, 14);
+  }
+
+  function dayDiffSafe(value) {
+    var d = parseDateSafe(value);
+    if (!d) return null;
+    var t = todaySafe();
+    var one = 24 * 60 * 60 * 1000;
+    return Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(t.getFullYear(), t.getMonth(), t.getDate())) / one);
+  }
+
+  function isCompletedSafe(task) {
+    return String(task.status || "").indexOf("完成") >= 0 || !!String(task.completed_date || "").trim();
+  }
+
+  function isActiveMySafe(task) {
+    return !isCompletedSafe(task);
+  }
+
+  function isActiveDelegatedSafe(task) {
+    return !isCompletedSafe(task);
+  }
+
+  function setTextSafe(id, value) {
+    var el = byId(id);
+    if (el) el.textContent = String(value);
+  }
+
+  function renderLoginMetricsSafe() {
+    var activeMy = [];
+    var activeDelegated = [];
+    var i, t, diff;
+
+    for (i = 0; i < MY_TASKS_SAFE.length; i++) {
+      if (isActiveMySafe(MY_TASKS_SAFE[i])) activeMy.push(MY_TASKS_SAFE[i]);
+    }
+
+    for (i = 0; i < DELEGATED_TASKS_SAFE.length; i++) {
+      if (isActiveDelegatedSafe(DELEGATED_TASKS_SAFE[i])) activeDelegated.push(DELEGATED_TASKS_SAFE[i]);
+    }
+
+    var incomplete = activeMy.length + activeDelegated.length;
+    var overdue = 0;
+    var todayDue = 0;
+
+    for (i = 0; i < activeMy.length; i++) {
+      diff = dayDiffSafe(activeMy[i].deadline);
+      if (diff !== null && diff < 0) overdue++;
+      if (diff === 0) todayDue++;
+    }
+
+    for (i = 0; i < activeDelegated.length; i++) {
+      diff = dayDiffSafe(activeDelegated[i].deadline);
+      if (diff !== null && diff < 0) overdue++;
+      if (diff === 0) todayDue++;
+    }
+
+    setTextSafe("loginMetricOpen", incomplete);
+    setTextSafe("loginMetricOverdue", overdue);
+    setTextSafe("loginMetricToday", todayDue);
+  }
+
+  function safeSessionGet(key) {
+    try {
+      return window.sessionStorage ? sessionStorage.getItem(key) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function safeSessionSet(key, value) {
+    try {
+      if (window.sessionStorage) sessionStorage.setItem(key, value);
+    } catch (e) {}
+  }
+
+  function unlockSafe() {
+    safeSessionSet("joanne_dashboard_unlocked", "true");
+
+    var gate = byId("passwordGate");
+    var app = byId("app");
+
+    if (gate) gate.classList.add("hidden");
+    if (app) app.classList.remove("hidden");
+
+    if (typeof window.renderAll === "function") {
+      try {
+        window.renderAll();
+      } catch (e) {
+        console.log("renderAll failed but login succeeded", e);
+      }
+    }
+
+    try {
+      window.scrollTo(0, 0);
+    } catch (e) {}
+  }
+
+  function bindLoginSafe() {
+    renderLoginMetricsSafe();
+
+    var input = byId("passwordInput");
+    var btn = byId("passwordButton");
+    var error = byId("passwordError");
+
+    if (!input || !btn) return;
+
+    function check() {
+      var value = String(input.value || "").trim();
+      if (value === DASHBOARD_PASSWORD_SAFE) {
+        unlockSafe();
+      } else {
+        if (error) error.textContent = "密碼錯誤，請再試一次。";
+        input.value = "";
+        try { input.focus(); } catch (e) {}
+      }
+    }
+
+    btn.onclick = check;
+    btn.ontouchend = function (event) {
+      if (event && event.preventDefault) event.preventDefault();
+      check();
+      return false;
+    };
+
+    input.onkeydown = function (event) {
+      event = event || window.event;
+      if (event.key === "Enter" || event.keyCode === 13) check();
+    };
+
+    if (safeSessionGet("joanne_dashboard_unlocked") === "true") {
+      unlockSafe();
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindLoginSafe);
+  } else {
+    bindLoginSafe();
+  }
+
+  window.JOANNE_MOBILE_LOGIN_SAFE_READY = true;
+})();
+</script>
+
+</body>
+</html>
